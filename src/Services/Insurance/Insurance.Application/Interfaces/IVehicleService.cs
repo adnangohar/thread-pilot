@@ -4,5 +4,5 @@ namespace Insurance.Application.Interfaces;
 
 public interface IVehicleService
 {
-     Task<VehicleResponse?> GetVehicleInfoAsync(string registrationNumber);
+     Task<VehicleResponse?> GetVehicleInfoAsync(string registrationNumber, CancellationToken cancellationToken);
 }

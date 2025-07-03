@@ -1,5 +1,3 @@
-using System;
-
 namespace Insurance.Contracts;
 
 public class PersonInsurancesResponse

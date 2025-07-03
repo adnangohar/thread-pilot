@@ -18,6 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Shared\ThreadPilot.Common\ThreadPilot.Common.csproj" />
     <ProjectReference Include="..\..\Vehicle\Vehicle.Contracts\Vehicle.Contracts.csproj" />
     <ProjectReference Include="..\Insurance.Contracts\Insurance.Contracts.csproj" />
     <ProjectReference Include="..\Insurance.Domain\Insurance.Domain.csproj" />

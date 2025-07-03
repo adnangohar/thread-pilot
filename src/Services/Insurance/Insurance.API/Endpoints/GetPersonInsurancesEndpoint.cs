@@ -1,4 +1,3 @@
-using FastEndpoints;
 using Insurance.Application.Queries.GetPersonInsurances;
 using Insurance.Contracts;
 using MediatR;
@@ -10,20 +9,18 @@ namespace Insurance.Api.Endpoints;
 
 public class GetPersonInsurancesEndpoint : Endpoint<GetPersonInsurancesRequest, Results<Ok<PersonInsurancesResponse>, NotFound<ProblemDetails>>>
 {
-    private readonly ILogger<GetPersonInsurancesEndpoint> _logger;
     private readonly IMediator _mediator;
     private readonly IMapper _mapper;
 
-    public GetPersonInsurancesEndpoint(IMediator mediator, ILogger<GetPersonInsurancesEndpoint> logger, IMapper mapper)
+    public GetPersonInsurancesEndpoint(IMediator mediator, IMapper mapper)
     {
-        _mediator = mediator;
-        _logger = logger;
-        _mapper = mapper;
+        _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
+        _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
     }
 
     public override void Configure()
     {
-        Post("/api/v1/insurances/get-by-person");
+        Post("/insurances/get-by-person");
         AllowAnonymous();
         Description(b => b
             .Produces<PersonInsurancesResponse>(200, "application/json")
@@ -38,17 +35,11 @@ public class GetPersonInsurancesEndpoint : Endpoint<GetPersonInsurancesRequest, 
         GetPersonInsurancesRequest req, 
         CancellationToken ct)
     {
-        _logger.LogInformation("Retrieving insurances for person {PersonalIdentificationNumber}", 
-            req.PersonalIdentificationNumber);
-
         var query = new GetPersonInsurancesQuery(req.PersonalIdentificationNumber);
         var insurances = await _mediator.Send(query, ct);
 
         if (insurances == null)
         {
-            _logger.LogWarning("No insurances found for person {PersonalIdentificationNumber}", 
-                req.PersonalIdentificationNumber);
-
             return TypedResults.NotFound(new ProblemDetails
             {
                 Status = 404,
@@ -56,12 +47,6 @@ public class GetPersonInsurancesEndpoint : Endpoint<GetPersonInsurancesRequest, 
                 Instance = HttpContext.Request.Path
             });
         }
-
-        _logger.LogInformation(
-            "Successfully retrieved {InsuranceCount} insurances for person {PersonalIdentificationNumber} with total cost {TotalCost}", 
-            insurances.Insurances.Count,
-            req.PersonalIdentificationNumber,
-            insurances.TotalMonthlyCost);
 
         return TypedResults.Ok(_mapper.Map<PersonInsurancesResponse>(insurances));
     }

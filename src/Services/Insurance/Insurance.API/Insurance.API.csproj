@@ -23,6 +23,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Insurance.Application\Insurance.Application.csproj" />
     <ProjectReference Include="..\Insurance.Contracts\Insurance.Contracts.csproj" />
+    <ProjectReference Include="..\Insurance.Infrastructure\Insurance.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,7 +1,6 @@
 using System.Net;
 using System.Text.Json;
 using Insurance.Application.Interfaces;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Vehicle.Contracts;
 
@@ -11,23 +10,19 @@ public class VehicleServiceClient : IVehicleService
 {
     private readonly HttpClient _httpClient;
     private readonly JsonSerializerOptions _jsonOptions;
-    
     private readonly ILogger<VehicleServiceClient> _logger;
 
-    public VehicleServiceClient(HttpClient httpClient, IConfiguration configuration, ILogger<VehicleServiceClient> logger)
+    public VehicleServiceClient(HttpClient httpClient, JsonSerializerOptions jsonOptions, ILogger<VehicleServiceClient> logger)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-        var vehicleServiceUrl = configuration["VehicleService:BaseUrl"] ?? "https://localhost:5001";
-        _httpClient.BaseAddress = new Uri(vehicleServiceUrl);
-
-        _jsonOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-        _logger = logger;
+        _jsonOptions = jsonOptions ?? throw new ArgumentNullException(nameof(jsonOptions));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
-    public async Task<VehicleResponse?> GetVehicleInfoAsync(string registrationNumber)
+    public async Task<VehicleResponse?> GetVehicleInfoAsync(string registrationNumber, CancellationToken cancellationToken)
     {
         try
         {
-            var response = await _httpClient.GetAsync($"/api/v1/vehicles/{registrationNumber}");
+            var response = await _httpClient.GetAsync($"/api/v1/vehicles/{registrationNumber}", cancellationToken);
             
             if (response.StatusCode == HttpStatusCode.NotFound)
             {

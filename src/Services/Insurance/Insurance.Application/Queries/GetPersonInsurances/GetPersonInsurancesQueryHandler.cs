@@ -6,7 +6,6 @@ using Insurance.Domain.ValueObjects;
 using Insurance.Contracts;
 using Insurance.Domain.Entities;
 using Insurance.Application.Interfaces;
-using System.Linq;
 
 namespace Insurance.Application.Queries.GetPersonInsurances;
 
@@ -46,7 +45,7 @@ public class GetPersonInsurancesQueryHandler : IRequestHandler<GetPersonInsuranc
 
             foreach (var insurance in insurancesList)
             {
-                var contract = await MapInsuranceToContract(insurance);
+                var contract = await MapInsuranceToContract(insurance, cancellationToken);
                 if (contract != null)
                 {
                     result.Insurances.Add(contract);
@@ -63,7 +62,7 @@ public class GetPersonInsurancesQueryHandler : IRequestHandler<GetPersonInsuranc
         }
     }
 
-    private async Task<InsuranceResponse?> MapInsuranceToContract(Insurance.Domain.Entities.Insurance insurance)
+    private async Task<InsuranceResponse?> MapInsuranceToContract(Insurance.Domain.Entities.Insurance insurance, CancellationToken cancellationToken)
     {
         switch (insurance)
         {
@@ -71,7 +70,7 @@ public class GetPersonInsurancesQueryHandler : IRequestHandler<GetPersonInsuranc
                 var carContract = _mapper.Map<CarInsuranceResponse>(carInsurance);
                 try
                 {
-                    carContract.Vehicle = await _vehicleService.GetVehicleInfoAsync(carInsurance.VehicleRegistrationNumber);
+                    carContract.Vehicle = await _vehicleService.GetVehicleInfoAsync(carInsurance.VehicleRegistrationNumber, cancellationToken);
                 }
                 catch (Exception)
                 {

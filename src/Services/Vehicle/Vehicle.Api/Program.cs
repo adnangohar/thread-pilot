@@ -2,23 +2,9 @@ using Serilog.Formatting.Compact;
 using Vehicle.Application;
 using Vehicle.Infrastructure;
 using ThreadPilot.Common.ServiceExtensions;
+using FastEndpoints.Swagger;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// Log.Logger = new LoggerConfiguration()
-//     .ReadFrom.Configuration(builder.Configuration)
-//     .Enrich.FromLogContext()
-//     .Enrich.WithProperty("Service", "Vehicle.API")
-//     .WriteTo.Console()
-//     .WriteTo.File("logs/vehicle-api-.txt", rollingInterval: RollingInterval.Day)
-//     .CreateLogger();
-
-// Add Serilog
-builder.Host.UseSerilog((context, services, configuration) => configuration
-    .ReadFrom.Configuration(context.Configuration)
-    .ReadFrom.Services(services)
-    .Enrich.FromLogContext()
-    .WriteTo.Console(new CompactJsonFormatter()));
 
 // Add Application
 builder.Services.AddCommonDependencies();
@@ -30,10 +16,28 @@ builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 
 // Add FastEndpoints
-builder.Services.AddFastEndpoints().AddSwaggerDocument();
+builder.Services.AddFastEndpoints().SwaggerDocument();
 
 // Add services to the container.
-// builder.Services.AddOpenApi();
+// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+builder.Services.AddOpenApi();
+
+
+
+// Log.Logger = new LoggerConfiguration()
+//     .ReadFrom.Configuration(builder.Configuration)
+//     .Enrich.FromLogContext()
+//     .Enrich.WithProperty("Service", "Vehicle.API")
+//     .WriteTo.Console()
+//     .WriteTo.File("logs/vehicle-api-.txt", rollingInterval: RollingInterval.Day)
+//     .CreateLogger();
+
+// Add Serilog
+// builder.Host.UseSerilog((context, services, configuration) => configuration
+//     .ReadFrom.Configuration(context.Configuration)
+//     .ReadFrom.Services(services)
+//     .Enrich.FromLogContext()
+//     .WriteTo.Console(new CompactJsonFormatter()));
 
 // Configure JSON options for .NET 9
 // builder.Services.ConfigureHttpJsonOptions(options =>
@@ -42,10 +46,6 @@ builder.Services.AddFastEndpoints().AddSwaggerDocument();
 //     options.SerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
 //     options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
 // });
-
-
-// Add SwaggerGen for Swashbuckle
-builder.Services.AddSwaggerGen();
 
 // Add API Versioning
 // builder.Services.AddApiVersioning(options =>
@@ -57,26 +57,24 @@ builder.Services.AddSwaggerGen();
 // });
 
 // Add CORS
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowAll", policy =>
-    {
-        policy.AllowAnyOrigin()
-              .AllowAnyMethod()
-              .AllowAnyHeader();
-    });
-});
+// builder.Services.AddCors(options =>
+// {
+//     options.AddPolicy("AllowAll", policy =>
+//     {
+//         policy.AllowAnyOrigin()
+//               .AllowAnyMethod()
+//               .AllowAnyHeader();
+//     });
+// });
+
+
 
 var app = builder.Build();
-
-// Use FastEndpoints and FastEndpoints Swagger
-app.UseFastEndpoints();
-app.UseOpenApi();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
+    app.MapOpenApi();
     app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "Vehicle Service API v1");
@@ -85,7 +83,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseCors("AllowAll");
-app.UseAuthorization();
+// app.UseCors("AllowAll");
+
+// Use FastEndpoints and FastEndpoints Swagger
+app.UseFastEndpoints().UseSwaggerGen();
 
 app.Run();

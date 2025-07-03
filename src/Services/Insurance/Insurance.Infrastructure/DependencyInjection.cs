@@ -1,8 +1,10 @@
 using System.Text.Json;
 using Insurance.Application.Interfaces;
 using Insurance.Domain.Repositories;
+using Insurance.Infrastructure.Persistence;
 using Insurance.Infrastructure.Repositories;
 using Insurance.Infrastructure.Services;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -13,11 +15,11 @@ public static class DependencyInjection
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
         // Database
-        // services.AddDbContext<InsuranceDbContext>(options =>
-        //     options.UseSqlite(configuration.GetConnectionString("DefaultConnection")));
+        services.AddDbContext<InsuranceDbContext>(options =>
+            options.UseSqlite(configuration.GetConnectionString("DefaultConnection")));
 
         // Repositories
-        services.AddScoped<IInsuranceRepository, InMemoryInsuranceRepository>();
+        services.AddScoped<IInsuranceRepository, InsuranceRepository>();
 
         // External Services
         services.AddHttpClient<IVehicleService, VehicleServiceClient>(client =>

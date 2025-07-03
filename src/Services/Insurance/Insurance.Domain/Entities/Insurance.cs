@@ -7,17 +7,20 @@ namespace Insurance.Domain.Entities;
 public abstract class Insurance
 {
     public Guid Id { get; protected set; }
-    public PersonalIdentificationNumber Owner { get; protected set; }
+    public string PersonalId { get; protected set; }
     public decimal MonthlyCost { get; protected set; }
     public InsuranceType Type { get; protected set; }
-    public DateTime CreatedAt { get; protected set; }
-        
-    protected Insurance(PersonalIdentificationNumber owner, decimal monthlyCost, InsuranceType type)
+    public string? VehicleRegistrationNumber { get; private set; } // For car insurance
+    public DateTime CreatedAt { get; private set; }
+    public DateTime? UpdatedAt { get; private set; }
+
+    protected Insurance(PersonalIdentificationNumber personalId, decimal monthlyCost, InsuranceType type, string vehicleRegistrationNumber = null)
     {
         Id = Guid.NewGuid();
-        Owner = owner ?? throw new ArgumentNullException(nameof(owner));
+        PersonalId = personalId.Value ?? throw new ArgumentNullException(nameof(personalId));
         MonthlyCost = monthlyCost > 0 ? monthlyCost : throw new ArgumentException("Monthly cost must be positive", nameof(monthlyCost));
         Type = type;
         CreatedAt = DateTime.UtcNow;
+        VehicleRegistrationNumber = vehicleRegistrationNumber;
     }
 }

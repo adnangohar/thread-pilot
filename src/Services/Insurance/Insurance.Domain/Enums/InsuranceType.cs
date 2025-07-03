@@ -2,7 +2,7 @@ namespace Insurance.Domain.Enums;
 
 public enum InsuranceType
 {
-    Pet,
-    PersonalHealth,
-    Car
+    Pet = 1,
+    PersonalHealth = 2,
+    Car = 3
 }

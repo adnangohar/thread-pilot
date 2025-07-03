@@ -8,8 +8,8 @@ public class PersonalHealthInsurance : Insurance
 {
     public string CoverageLevel { get; private set; }
         
-        public PersonalHealthInsurance(PersonalIdentificationNumber owner, string coverageLevel = "Basic") 
-            : base(owner, 20m, InsuranceType.PersonalHealth)
+        public PersonalHealthInsurance(PersonalIdentificationNumber personalId, string coverageLevel = "Basic") 
+            : base(personalId, 20m, InsuranceType.PersonalHealth)
         {
             CoverageLevel = coverageLevel;
         }

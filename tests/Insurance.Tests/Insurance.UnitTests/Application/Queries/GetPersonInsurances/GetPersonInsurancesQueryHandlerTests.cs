@@ -45,7 +45,7 @@ public class GetPersonInsurancesQueryHandlerTests
         var emptyInsurances = new List<Domain.Entities.Insurance>();
 
         _mockInsuranceRepository
-            .Setup(x => x.GetByOwnerAsync(It.IsAny<PersonalIdentificationNumber>()))
+            .Setup(x => x.GetByPersonalIdAsync(It.IsAny<PersonalIdentificationNumber>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(emptyInsurances);
 
         // Act
@@ -53,7 +53,7 @@ public class GetPersonInsurancesQueryHandlerTests
 
         // Assert
         result.Should().BeNull();
-        _mockInsuranceRepository.Verify(x => x.GetByOwnerAsync(It.IsAny<PersonalIdentificationNumber>()), Times.Once);
+        _mockInsuranceRepository.Verify(x => x.GetByPersonalIdAsync(It.IsAny<PersonalIdentificationNumber>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -88,7 +88,7 @@ public class GetPersonInsurancesQueryHandlerTests
         };
 
         _mockInsuranceRepository
-            .Setup(x => x.GetByOwnerAsync(It.IsAny<PersonalIdentificationNumber>()))
+            .Setup(x => x.GetByPersonalIdAsync(It.IsAny<PersonalIdentificationNumber>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(insurances);
 
         _mockMapper
@@ -132,7 +132,7 @@ public class GetPersonInsurancesQueryHandlerTests
         var healthInsuranceResponse = new PersonalHealthInsuranceResponse { Type = "Health", MonthlyCost = 20m };
 
         _mockInsuranceRepository
-            .Setup(x => x.GetByOwnerAsync(It.IsAny<PersonalIdentificationNumber>()))
+            .Setup(x => x.GetByPersonalIdAsync(It.IsAny<PersonalIdentificationNumber>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(insurances);
 
         _mockMapper
@@ -181,7 +181,7 @@ public class GetPersonInsurancesQueryHandlerTests
         };
 
         _mockInsuranceRepository
-            .Setup(x => x.GetByOwnerAsync(It.IsAny<PersonalIdentificationNumber>()))
+            .Setup(x => x.GetByPersonalIdAsync(It.IsAny<PersonalIdentificationNumber>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(insurances);
 
         _mockMapper
@@ -216,7 +216,7 @@ public class GetPersonInsurancesQueryHandlerTests
         var petInsuranceResponse = new PetInsuranceResponse { Type = "Pet", MonthlyCost = 10m };
 
         _mockInsuranceRepository
-            .Setup(x => x.GetByOwnerAsync(It.IsAny<PersonalIdentificationNumber>()))
+            .Setup(x => x.GetByPersonalIdAsync(It.IsAny<PersonalIdentificationNumber>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(insurances);
 
         _mockMapper

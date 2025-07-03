@@ -1,6 +1,8 @@
 using Insurance.Application;
 using Insurance.Infrastructure;
+using Insurance.Infrastructure.Persistence;
 using FastEndpoints.Swagger;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +20,14 @@ builder.Services.AddFastEndpoints().SwaggerDocument();
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
+
+// Ensure database is created
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<InsuranceDbContext>();
+    context.Database.EnsureCreated(); // This creates the database if it doesn't exist
+    
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

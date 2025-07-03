@@ -34,7 +34,7 @@ public class GetPersonInsurancesQueryHandler : IRequestHandler<GetPersonInsuranc
         try
         {
             var pin = new PersonalIdentificationNumber(request.PersonalIdentificationNumber);
-            var insurances = await _insuranceRepository.GetByOwnerAsync(pin);
+            var insurances = await _insuranceRepository.GetByPersonalIdAsync(pin, cancellationToken);
             var insurancesList = insurances.ToList();
             if (!insurancesList.Any())
             {

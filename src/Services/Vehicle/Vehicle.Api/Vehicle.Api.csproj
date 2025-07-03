@@ -21,9 +21,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Vehicle.Application\Vehicle.Application.csproj" />
-    <ProjectReference Include="..\Vehicle.Contracts\Vehicle.Contracts.csproj" />
     <ProjectReference Include="..\Vehicle.Infrastructure\Vehicle.Infrastructure.csproj" />
-    <ProjectReference Include="..\..\..\Shared\ThreadPilot.Common\ThreadPilot.Common.csproj" />
   </ItemGroup>
 
 </Project>

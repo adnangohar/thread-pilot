@@ -1,23 +1,25 @@
+using Vehicle.Contracts;
+
 namespace Insurance.Contracts;
 
-public abstract class InsuranceDto
+public abstract class InsuranceResponse
 {
     public string Type { get; set; } = string.Empty;
     public decimal MonthlyCost { get; set; }
 }
 
-public class PetInsuranceDto : InsuranceDto
+public class PetInsuranceResponse : InsuranceResponse
 {
     public string PetName { get; set; } = string.Empty;
     public string PetType { get; set; } = string.Empty;
 }
 
-public class PersonalHealthInsuranceDto : InsuranceDto
+public class PersonalHealthInsuranceResponse : InsuranceResponse
 {
     public string CoverageLevel { get; set; } = string.Empty;
 }
 
-public class CarInsuranceDto : InsuranceDto
+public class CarInsuranceResponse : InsuranceResponse
 {
     public VehicleResponse? Vehicle { get; set; }
 }

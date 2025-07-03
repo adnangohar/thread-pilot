@@ -1,8 +1,10 @@
+using System;
+
 namespace Insurance.Contracts;
 
-public class PersonInsurancesDto
+public class PersonInsurancesResponse
 {
     public string PersonalIdentificationNumber { get; set; } = string.Empty;
-    public List<InsuranceDto> Insurances { get; set; } = new();
+    public List<InsuranceResponse> Insurances { get; set; } = new();
     public decimal TotalMonthlyCost { get; set; }
 }

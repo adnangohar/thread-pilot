@@ -5,10 +5,13 @@
   <ItemGroup>
     <!-- ASP.NET -->
 
-    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" />
-    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="9.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="9.0.6" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration" Version="9.0.6" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="9.0.6" />
     <PackageVersion Include="Microsoft.Extensions.Http" Version="9.0.0" />
     <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="9.0.6" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions"  Version="9.0.6"/>
+    
     <!-- FastEndpoints -->
     <PackageVersion Include="FastEndpoints" Version="6.0.0" />
     <PackageVersion Include="FastEndpoints.Swagger" Version="6.0.0" />

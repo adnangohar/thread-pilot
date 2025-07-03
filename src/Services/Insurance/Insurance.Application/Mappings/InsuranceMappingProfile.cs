@@ -1,7 +1,4 @@
-using System;
 using AutoMapper;
-using Insurance.Contracts;
-using Insurance.Domain.Entities;
 
 namespace Insurance.Application.Mappings;
 
@@ -9,14 +6,14 @@ public class InsuranceMappingProfile : Profile
 {
     public InsuranceMappingProfile()
     {
-        CreateMap<CarInsurance, CarInsuranceDto>()
+        CreateMap<Domain.Entities.CarInsurance, Contracts.CarInsuranceResponse>()
             .ForMember(dest => dest.Type, opt => opt.MapFrom(src => "CarInsurance"))
             .ForMember(dest => dest.Vehicle, opt => opt.Ignore());
             
-        CreateMap<PetInsurance, PetInsuranceDto>()
+        CreateMap<Domain.Entities.PetInsurance, Contracts.PetInsuranceResponse>()
             .ForMember(dest => dest.Type, opt => opt.MapFrom(src => "PetInsurance"));
             
-        CreateMap<PersonalHealthInsurance, PersonalHealthInsuranceDto>()
+        CreateMap<Domain.Entities.PersonalHealthInsurance, Contracts.PersonalHealthInsuranceResponse>()
             .ForMember(dest => dest.Type, opt => opt.MapFrom(src => "PersonalHealthInsurance"));
     }
 }

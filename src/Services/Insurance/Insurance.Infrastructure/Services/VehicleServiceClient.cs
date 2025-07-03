@@ -2,6 +2,7 @@ using System.Net;
 using System.Text.Json;
 using Insurance.Application.Interfaces;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Vehicle.Contracts;
 
 namespace Insurance.Infrastructure.Services;
@@ -10,14 +11,17 @@ public class VehicleServiceClient : IVehicleService
 {
     private readonly HttpClient _httpClient;
     private readonly JsonSerializerOptions _jsonOptions;
+    
+    private readonly ILogger<VehicleServiceClient> _logger;
 
-    public VehicleServiceClient(HttpClient httpClient, IConfiguration configuration)
+    public VehicleServiceClient(HttpClient httpClient, IConfiguration configuration, ILogger<VehicleServiceClient> logger)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         var vehicleServiceUrl = configuration["VehicleService:BaseUrl"] ?? "https://localhost:5001";
         _httpClient.BaseAddress = new Uri(vehicleServiceUrl);
 
-        _jsonOptions = new JsonSerializerOptions {PropertyNameCaseInsensitive = true };
+        _jsonOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+        _logger = logger;
     }
     public async Task<VehicleResponse?> GetVehicleInfoAsync(string registrationNumber)
     {
@@ -27,18 +31,18 @@ public class VehicleServiceClient : IVehicleService
             
             if (response.StatusCode == HttpStatusCode.NotFound)
             {
-                // _logger.LogInformation("Vehicle not found: {RegistrationNumber}", registrationNumber);
+                _logger.LogInformation("Vehicle not found: {RegistrationNumber}", registrationNumber);
                 return null;
             }
             
             response.EnsureSuccessStatusCode();
             
             var content = await response.Content.ReadAsStringAsync();
-            return JsonSerializer.Deserialize<GetVehicleResponse>(content, _jsonOptions);
+            return JsonSerializer.Deserialize<VehicleResponse>(content, _jsonOptions);
         }
         catch (Exception ex)
         {
-            //_logger.LogError(ex, "Failed to get vehicle info for {RegistrationNumber}", registrationNumber);
+            _logger.LogError(ex, "Failed to get vehicle info for {RegistrationNumber}", registrationNumber);
             return null;
         }
     }

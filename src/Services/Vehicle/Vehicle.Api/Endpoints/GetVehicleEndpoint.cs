@@ -16,7 +16,8 @@ public class GetVehicleEndpoint : EndpointWithoutRequest<Results<Ok<VehicleRespo
 
     public override void Configure()
     {
-        Get("/api/v1/vehicles/{registrationNumber}");
+        Get("/vehicles/{registrationNumber}");
+        Version(1);
         AllowAnonymous();
         Description(b => b
             .Produces<VehicleResponse>(200, "application/json")

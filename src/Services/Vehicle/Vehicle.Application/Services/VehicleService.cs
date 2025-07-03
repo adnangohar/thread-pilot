@@ -1,6 +1,6 @@
 using System;
 using AutoMapper;
-using Vehicle.Application.DTOs;
+using Vehicle.Application.Common;
 using Vehicle.Application.Interfaces;
 using Vehicle.Domain.Repositories;
 using Vehicle.Domain.ValueObjects;
@@ -18,14 +18,14 @@ public class VehicleService : IVehicleService
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
     }
 
-    public async Task<VehicleDto?> GetVehicleByRegistrationNumberAsync(string registrationNumber)
+    public async Task<VehicleResult?> GetVehicleByRegistrationNumberAsync(string registrationNumber)
     {
         try
         {
             var regNumber = new RegistrationNumber(registrationNumber);
             var vehicle = await _vehicleRepository.GetByRegistrationNumberAsync(regNumber);
 
-            return vehicle == null ? null : _mapper.Map<VehicleDto>(vehicle);
+            return vehicle == null ? null : _mapper.Map<VehicleResult>(vehicle);
         }
         catch (ArgumentException)
         {

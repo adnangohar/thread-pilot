@@ -1,0 +1,56 @@
+{
+    "version": "0.2.0",
+    "compounds": [
+        {
+            "name": "Start Both APIs",
+            "configurations": [
+                "Launch Vehicle.Api",
+                "Launch Insurance.Api"
+            ]
+        }
+    ],
+    "configurations": [
+        {
+            "name": "Launch Vehicle.Api",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/src/Services/Vehicle/Vehicle.Api/bin/Debug/net8.0/Vehicle.Api.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/src/Services/Vehicle/Vehicle.Api",
+            "stopAtEntry": false,
+            "serverReadyAction": {
+                "action": "openExternally",
+                "pattern": "Now listening on: (https?://\\S+)"
+            },
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            },
+            "launchBrowser": {
+                "enabled": true,
+                "args": "http://localhost:5000;http://localhost:5001"
+            }
+        },
+        {
+            "name": "Launch Insurance.Api",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/src/Services/Insurance/Insurance.Api/bin/Debug/net8.0/Insurance.Api.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/src/Services/Insurance/Insurance.Api",
+            "stopAtEntry": false,
+            "serverReadyAction": {
+                "action": "openExternally",
+                "pattern": "Now listening on: (https?://\\S+)"
+            },
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            },
+            "launchBrowser": {
+                "enabled": true,
+                "args": "http://localhost:5100;http://localhost:5101"
+            }
+        }
+    ]
+}

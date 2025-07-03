@@ -1,9 +1,8 @@
-using System;
 using System.Net;
 using System.Text.Json;
 using Insurance.Application.Interfaces;
-using Insurance.Contracts;
 using Microsoft.Extensions.Configuration;
+using Vehicle.Contracts;
 
 namespace Insurance.Infrastructure.Services;
 
@@ -20,7 +19,7 @@ public class VehicleServiceClient : IVehicleService
 
         _jsonOptions = new JsonSerializerOptions {PropertyNameCaseInsensitive = true };
     }
-    public async Task<VehicleInfoDto?> GetVehicleInfoAsync(string registrationNumber)
+    public async Task<VehicleResponse?> GetVehicleInfoAsync(string registrationNumber)
     {
         try
         {
@@ -35,7 +34,7 @@ public class VehicleServiceClient : IVehicleService
             response.EnsureSuccessStatusCode();
             
             var content = await response.Content.ReadAsStringAsync();
-            return JsonSerializer.Deserialize<VehicleInfoDto>(content, _jsonOptions);
+            return JsonSerializer.Deserialize<GetVehicleResponse>(content, _jsonOptions);
         }
         catch (Exception ex)
         {

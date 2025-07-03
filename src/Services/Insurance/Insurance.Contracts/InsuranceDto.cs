@@ -19,5 +19,5 @@ public class PersonalHealthInsuranceDto : InsuranceDto
 
 public class CarInsuranceDto : InsuranceDto
 {
-    public VehicleInfoDto? Vehicle { get; set; }
+    public VehicleResponse? Vehicle { get; set; }
 }

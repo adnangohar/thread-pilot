@@ -1,9 +1,8 @@
-using System;
-using Insurance.Contracts;
+using Vehicle.Contracts;
 
 namespace Insurance.Application.Interfaces;
 
 public interface IVehicleService
 {
-     Task<VehicleInfoDto?> GetVehicleInfoAsync(string registrationNumber);
+     Task<VehicleResponse?> GetVehicleInfoAsync(string registrationNumber);
 }

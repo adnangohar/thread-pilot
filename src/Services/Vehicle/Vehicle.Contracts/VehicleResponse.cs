@@ -2,7 +2,7 @@ using System;
 
 namespace Vehicle.Contracts;
 
-public class GetVehicleResponse
+public class VehicleResponse
 {
     public string RegistrationNumber { get; set; } = string.Empty;
     public string Make { get; set; } = string.Empty;

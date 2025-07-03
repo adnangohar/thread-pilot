@@ -1,9 +1,9 @@
 using System;
-using Vehicle.Application.DTOs;
+using Vehicle.Application.Common;
 
 namespace Vehicle.Application.Interfaces;
 
 public interface IVehicleService
 {
-    Task<VehicleDto?> GetVehicleByRegistrationNumberAsync(string registrationNumber);
+    Task<VehicleResult?> GetVehicleByRegistrationNumberAsync(string registrationNumber);
 }

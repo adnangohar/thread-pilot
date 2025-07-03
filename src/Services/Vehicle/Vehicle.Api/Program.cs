@@ -1,5 +1,3 @@
-using FastEndpoints;
-using FastEndpoints.Swagger;
 using Microsoft.AspNetCore.HttpLogging;
 using Serilog.Events;
 using Serilog.Formatting.Compact;
@@ -9,6 +7,11 @@ using Vehicle.Application.Interfaces;
 using Vehicle.Application.Mappings;
 using Vehicle.Application.Services;
 using Vehicle.Domain.Repositories;
+using MediatR;
+using Vehicle.Api.Mappings;
+using FluentValidation;
+using Vehicle.Application.Queries.GetVehicle;
+using ThreadPilot.Common.Behaviors;
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
@@ -87,6 +90,8 @@ builder.Services.AddHttpLogging(options =>
 //         .AddHttpClientInstrumentation()
 //         .AddConsoleExporter());
 
+// Add SwaggerGen for Swashbuckle
+builder.Services.AddSwaggerGen();
 
 // Add CORS
 builder.Services.AddCors(options =>
@@ -98,6 +103,13 @@ builder.Services.AddCors(options =>
               .AllowAnyHeader();
     });
 });
+
+// Add MediatR
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<GetVehicleByRegistrationNumberQuery>());
+// Add FluentValidation
+builder.Services.AddValidatorsFromAssemblyContaining<GetVehicleByRegistrationNumberQuery>();
+// Add MediatR pipeline behavior for validation
+builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
 var app = builder.Build();
 

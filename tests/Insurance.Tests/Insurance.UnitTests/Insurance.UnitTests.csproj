@@ -24,10 +24,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="GetPersonInsurancesTests\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\..\..\src\Services\Insurance\Insurance.Application\Insurance.Application.csproj" />
     <ProjectReference Include="..\..\..\src\Services\Insurance\Insurance.Domain\Insurance.Domain.csproj" />
     <ProjectReference Include="..\..\..\src\Services\Insurance\Insurance.Contracts\Insurance.Contracts.csproj" />

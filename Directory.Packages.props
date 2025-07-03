@@ -16,6 +16,8 @@
     <!-- FastEndpoints -->
     <PackageVersion Include="FastEndpoints" Version="6.0.0" />
     <PackageVersion Include="FastEndpoints.Swagger" Version="6.0.0" />
+    <PackageVersion Include="Scalar.AspNetCore" Version="2.2.7" />
+
     <!-- Open-source packages -->
     <PackageVersion Include="MediatR" Version="12.5.0" />
     <PackageVersion Include="MediatR.Extensions.FluentValidation.AspNetCore" Version="6.0.0" />
@@ -34,7 +36,7 @@
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.0" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.0" />
     <!-- Tests -->
-    <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.0" />
+    <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="9.0.6" />
     <PackageVersion Include="FluentAssertions" Version="6.12.0" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
     <PackageVersion Include="throw" Version="1.4.0" />
@@ -50,6 +52,9 @@
     <PackageVersion Include="OpenTelemetry.Exporter.Console" Version="1.12.0" />
     <!-- Swagger -->
     <PackageVersion Include="Swashbuckle.AspNetCore" Version="9.0.1" />
+
+    <!-- ActiveLogin -->
+    <PackageVersion Include="ActiveLogin.Identity.Swedish" Version="3.0.0" />
 
   </ItemGroup>
 </Project>

@@ -6,6 +6,7 @@ using Insurance.Domain.ValueObjects;
 using Insurance.Contracts;
 using Insurance.Domain.Entities;
 using Insurance.Application.Interfaces;
+using Microsoft.Extensions.Logging;
 
 namespace Insurance.Application.Queries.GetPersonInsurances;
 
@@ -14,15 +15,18 @@ public class GetPersonInsurancesQueryHandler : IRequestHandler<GetPersonInsuranc
     private readonly IInsuranceRepository _insuranceRepository;
     private readonly IVehicleService _vehicleService;
     private readonly IMapper _mapper;
+    private ILogger<GetPersonInsurancesQueryHandler> _logger;
 
     public GetPersonInsurancesQueryHandler(
         IInsuranceRepository insuranceRepository,
         IVehicleService vehicleService,
-        IMapper mapper)
+        IMapper mapper,
+        ILogger<GetPersonInsurancesQueryHandler> logger)
     {
         _insuranceRepository = insuranceRepository ?? throw new ArgumentNullException(nameof(insuranceRepository));
         _vehicleService = vehicleService ?? throw new ArgumentNullException(nameof(vehicleService));
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+        _logger = logger;
     }
 
     public async Task<PersonInsurancesResult?> Handle(GetPersonInsurancesQuery request, CancellationToken cancellationToken)
@@ -68,21 +72,14 @@ public class GetPersonInsurancesQueryHandler : IRequestHandler<GetPersonInsuranc
         {
             case CarInsurance carInsurance:
                 var carContract = _mapper.Map<CarInsuranceResponse>(carInsurance);
-                try
-                {
-                    carContract.Vehicle = await _vehicleService.GetVehicleInfoAsync(carInsurance.VehicleRegistrationNumber, cancellationToken);
-                }
-                catch (Exception)
-                {
-                    // Optionally log error
-                }
+                carContract.Vehicle = await _vehicleService.GetVehicleInfoAsync(carInsurance.VehicleRegistrationNumber, cancellationToken);
                 return carContract;
             case PetInsurance petInsurance:
                 return _mapper.Map<PetInsuranceResponse>(petInsurance);
             case PersonalHealthInsurance healthInsurance:
                 return _mapper.Map<PersonalHealthInsuranceResponse>(healthInsurance);
             default:
-                // Optionally log warning
+                _logger.LogWarning("Unknown insurance type: {InsuranceType}", insurance.GetType().Name);
                 return null;
         }
     }

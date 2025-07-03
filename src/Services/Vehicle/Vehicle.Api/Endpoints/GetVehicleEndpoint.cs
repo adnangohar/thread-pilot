@@ -21,11 +21,10 @@ public class GetVehicleEndpoint : EndpointWithoutRequest<Results<Ok<VehicleRespo
         Description(b => b
             .Produces<VehicleResponse>(200, "application/json")
             .ProducesProblem(404)
-            .ProducesProblemFE<InternalErrorResponse>(500)
+            .ProducesProblem(500)
             .WithTags("Vehicles")
             .WithSummary("Get vehicle by registration number")
             .WithDescription("Retrieves vehicle information by its registration number"));
-        // Route parameter validation is handled in ExecuteAsync
     }
 
     public GetVehicleEndpoint(IMediator mediator, IMapper mapper, ILogger<GetVehicleEndpoint> logger)

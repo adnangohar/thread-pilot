@@ -4,26 +4,30 @@ using MediatR;
 using Microsoft.AspNetCore.Http.HttpResults;
 using ProblemDetails = FastEndpoints.ProblemDetails;
 using IMapper = AutoMapper.IMapper;
+using FluentValidation;
 
 namespace Insurance.Api.Endpoints;
 
-public class GetPersonInsurancesEndpoint : Endpoint<GetPersonInsurancesRequest, Results<Ok<PersonInsurancesResponse>, NotFound<ProblemDetails>>>
+public class GetPersonInsurancesEndpoint : Endpoint<GetPersonInsurancesRequest, Results<Ok<PersonInsurancesResponse>, NotFound<ProblemDetails>, BadRequest<ProblemDetails>>>
 {
     private readonly IMediator _mediator;
     private readonly IMapper _mapper;
+    private readonly IValidator<GetPersonInsurancesRequest> _validator;
 
-    public GetPersonInsurancesEndpoint(IMediator mediator, IMapper mapper)
+    public GetPersonInsurancesEndpoint(IMediator mediator, IMapper mapper, IValidator<GetPersonInsurancesRequest> validator)
     {
         _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+        _validator = validator;
     }
 
     public override void Configure()
     {
-        Post("/insurances/get-by-person");
+        Post("/insurances");
         AllowAnonymous();
         Description(b => b
             .Produces<PersonInsurancesResponse>(200, "application/json")
+            .ProducesProblem(400)
             .ProducesProblem(404)
             .ProducesProblemFE<InternalErrorResponse>(500)
             .WithTags("Insurances")
@@ -31,12 +35,24 @@ public class GetPersonInsurancesEndpoint : Endpoint<GetPersonInsurancesRequest, 
             .WithDescription("Retrieves all insurances for a person by their personal identification number (sent in the request body)"));
     }
         
-    public override async Task<Results<Ok<PersonInsurancesResponse>, NotFound<ProblemDetails>>> ExecuteAsync(
+    public override async Task<Results<Ok<PersonInsurancesResponse>, NotFound<ProblemDetails>, BadRequest<ProblemDetails>>> ExecuteAsync(
         GetPersonInsurancesRequest req, 
-        CancellationToken ct)
+        CancellationToken cancellationToken)
     {
+        var validationResult = await _validator.ValidateAsync(req, cancellationToken);
+
+         if (!validationResult.IsValid)
+        {
+            return TypedResults.BadRequest(new ProblemDetails
+            {
+                Status = 400,
+                Detail = string.Join("; ", validationResult.Errors.Select(e => e.ErrorMessage)),
+                Instance = HttpContext.Request.Path
+            });
+        }
+        
         var query = new GetPersonInsurancesQuery(req.PersonalIdentificationNumber);
-        var insurances = await _mediator.Send(query, ct);
+        var insurances = await _mediator.Send(query, cancellationToken);
 
         if (insurances == null)
         {

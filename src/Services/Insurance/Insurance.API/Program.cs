@@ -1,12 +1,8 @@
-using ThreadPilot.Common.ServiceExtensions;
 using Insurance.Application;
 using Insurance.Infrastructure;
 using FastEndpoints.Swagger;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// Add Common Dependency
-builder.Services.AddCommonDependencies();
 
 // Add Application
 builder.Services.AddApplication();
@@ -42,3 +38,5 @@ app.UseHttpsRedirection();
 app.UseFastEndpoints().UseSwaggerGen();
 
 app.Run();
+
+public partial class Program { } // For integration tests

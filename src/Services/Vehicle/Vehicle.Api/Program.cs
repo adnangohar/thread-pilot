@@ -1,13 +1,8 @@
-using Serilog.Formatting.Compact;
 using Vehicle.Application;
 using Vehicle.Infrastructure;
-using ThreadPilot.Common.ServiceExtensions;
-using FastEndpoints.Swagger;
+using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// Add Application
-builder.Services.AddCommonDependencies();
 
 // Add Application
 builder.Services.AddApplication();
@@ -16,13 +11,33 @@ builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 
 // Add FastEndpoints
-builder.Services.AddFastEndpoints().SwaggerDocument();
+builder.Services.AddFastEndpoints().AddSwaggerDocument();
 
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+ builder.Services.AddOpenApi();
 
+var app = builder.Build();
 
+// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
+{   
+    app.MapOpenApi();
+    app.MapScalarApiReference(options =>
+    {
+        options
+            .WithTitle("Vehicle Service API")
+            .WithDarkMode(true)
+            .WithTheme(ScalarTheme.BluePlanet)
+            .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.AsyncHttp);
+    });
+}
+
+app.UseHttpsRedirection();
+// app.UseCors("AllowAll");
+
+// Use FastEndpoints and FastEndpoints Swagger
+app.UseFastEndpoints();
 
 // Log.Logger = new LoggerConfiguration()
 //     .ReadFrom.Configuration(builder.Configuration)
@@ -66,26 +81,5 @@ builder.Services.AddOpenApi();
 //               .AllowAnyHeader();
 //     });
 // });
-
-
-
-var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Vehicle Service API v1");
-        c.RoutePrefix = string.Empty;
-    });
-}
-
-app.UseHttpsRedirection();
-// app.UseCors("AllowAll");
-
-// Use FastEndpoints and FastEndpoints Swagger
-app.UseFastEndpoints().UseSwaggerGen();
 
 app.Run();

@@ -1,8 +1,7 @@
 using System.Reflection;
 using FluentValidation;
-using MediatR;
 using Microsoft.Extensions.DependencyInjection;
-using ThreadPilot.Common.Behaviors;
+using Vehicle.Application.Queries.GetVehicle;
 
 namespace Vehicle.Application.Extensions;
 
@@ -16,8 +15,7 @@ public static class ServiceCollectionExtensions
             cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
         });
         
-        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
-        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
+        services.AddTransient<IValidator<GetVehicleByRegistrationNumberQuery>, GetVehicleByRegistrationNumberQueryValidator>();
 
         return services;
     }

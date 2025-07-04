@@ -14,6 +14,7 @@ using Insurance.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using DomainInsuranceType = Insurance.Domain.Enums.InsuranceType;
 using Insurance.Application.Common;
+using System.Text.Json;
 
 namespace Insurance.IntegrationTests;
 
@@ -24,6 +25,7 @@ public class InsuranceApiIntegrationTests : IClassFixture<WebApplicationFactory<
     private readonly Mock<IVehicleService> _vehicleServiceMock;
     private readonly Mock<IValidator<GetPersonInsurancesRequest>> _validatorMock;
     private readonly WebApplicationFactory<Program> _testFactory;
+    private readonly JsonSerializerOptions _jsonOptions;
 
     public InsuranceApiIntegrationTests(WebApplicationFactory<Program> factory)
     {
@@ -31,6 +33,14 @@ public class InsuranceApiIntegrationTests : IClassFixture<WebApplicationFactory<
         _validatorMock = new Mock<IValidator<GetPersonInsurancesRequest>>();
         _validatorMock.Setup(v => v.ValidateAsync(It.IsAny<GetPersonInsurancesRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new FluentValidation.Results.ValidationResult());
+
+        // Configure JSON options to match the API configuration
+        _jsonOptions = new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull,
+            Converters = { new System.Text.Json.Serialization.JsonStringEnumConverter() }
+        };
 
         _factory = factory;
         _testFactory = _factory.WithWebHostBuilder(builder =>
@@ -114,7 +124,7 @@ public class InsuranceApiIntegrationTests : IClassFixture<WebApplicationFactory<
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         
-        var content = await response.Content.ReadFromJsonAsync<PersonInsurancesResult>();
+        var content = await response.Content.ReadFromJsonAsync<PersonInsurancesResult>(_jsonOptions);
         content.Should().NotBeNull();
         content!.PersonalIdentificationNumber.Should().Be(personalId);
         content.Insurances.Should().HaveCount(3);
@@ -141,7 +151,7 @@ public class InsuranceApiIntegrationTests : IClassFixture<WebApplicationFactory<
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         
-        var content = await response.Content.ReadFromJsonAsync<PersonInsurancesResult>();
+        var content = await response.Content.ReadFromJsonAsync<PersonInsurancesResult>(_jsonOptions);
         content.Should().NotBeNull();
         content!.PersonalIdentificationNumber.Should().Be(personalId);
         content.Insurances.Should().BeEmpty();
@@ -188,7 +198,7 @@ public class InsuranceApiIntegrationTests : IClassFixture<WebApplicationFactory<
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         
-        var content = await response.Content.ReadFromJsonAsync<PersonInsurancesResult>();
+        var content = await response.Content.ReadFromJsonAsync<PersonInsurancesResult>(_jsonOptions);
         content.Should().NotBeNull();
         content!.Insurances.Should().HaveCount(1);
         

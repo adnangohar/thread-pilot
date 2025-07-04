@@ -1,6 +1,9 @@
 using System;
 using AutoMapper;
 using FluentAssertions;
+using FluentValidation;
+using FluentValidation.Results;
+using Microsoft.Extensions.Logging;
 using Moq;
 using Vehicle.Application.Common;
 using Vehicle.Application.Queries.GetVehicle;
@@ -13,13 +16,18 @@ public class GetVehicleByRegistrationNumberQueryHandlerTests
 {
     private readonly Mock<IVehicleRepository> _vehicleRepositoryMock;
     private readonly Mock<IMapper> _mapperMock;
+    private readonly Mock<IValidator<GetVehicleByRegistrationNumberQuery>> _validatorMock;
+    private readonly Mock<ILogger<GetVehicleByRegistrationNumberQueryHandler>> _loggerMock;
     private readonly GetVehicleByRegistrationNumberQueryHandler _handler;
+
 
     public GetVehicleByRegistrationNumberQueryHandlerTests()
     {
         _vehicleRepositoryMock = new Mock<IVehicleRepository>();
         _mapperMock = new Mock<IMapper>();
-        _handler = new GetVehicleByRegistrationNumberQueryHandler(_vehicleRepositoryMock.Object, _mapperMock.Object);
+        _validatorMock = new Mock<IValidator<GetVehicleByRegistrationNumberQuery>>();
+        _loggerMock = new Mock<ILogger<GetVehicleByRegistrationNumberQueryHandler>>();
+        _handler = new GetVehicleByRegistrationNumberQueryHandler(_vehicleRepositoryMock.Object, _mapperMock.Object, _validatorMock.Object, _loggerMock.Object);
     }
 
     [Fact]
@@ -45,6 +53,10 @@ public class GetVehicleByRegistrationNumberQueryHandlerTests
             Year: 2020,
             Color: "Blue"
         );
+
+        _validatorMock
+            .Setup(v => v.ValidateAsync(It.IsAny<GetVehicleByRegistrationNumberQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ValidationResult());
 
         _vehicleRepositoryMock
             .Setup(r => r.GetByRegistrationNumberAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
@@ -73,6 +85,10 @@ public class GetVehicleByRegistrationNumberQueryHandlerTests
         var query = new GetVehicleByRegistrationNumberQuery(registrationNumber);
         var cancellationToken = CancellationToken.None;
 
+        _validatorMock
+            .Setup(v => v.ValidateAsync(It.IsAny<GetVehicleByRegistrationNumberQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ValidationResult());
+
         _vehicleRepositoryMock
             .Setup(r => r.GetByRegistrationNumberAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((Domain.Entities.Vehicle?)null);
@@ -95,6 +111,16 @@ public class GetVehicleByRegistrationNumberQueryHandlerTests
         var invalidRegistrationNumber = "A"; // Too short, doesn't match ABC123 pattern
         var query = new GetVehicleByRegistrationNumberQuery(invalidRegistrationNumber);
         var cancellationToken = CancellationToken.None;
+
+        var validationFailures = new List<ValidationFailure>
+        {
+            new ValidationFailure("RegistrationNumber", "Registration number must not exceed 6 characters.")
+        };
+        var validationResult = new ValidationResult(validationFailures);
+
+        _validatorMock
+            .Setup(v => v.ValidateAsync(It.IsAny<GetVehicleByRegistrationNumberQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(validationResult);
 
         // Act
         var result = await _handler.Handle(query, cancellationToken);

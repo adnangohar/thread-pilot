@@ -22,7 +22,7 @@ public class VehicleServiceClient : IVehicleService
     {
         try
         {
-            var response = await _httpClient.GetAsync($"/api/v1/vehicles/{registrationNumber}", cancellationToken);
+            var response = await _httpClient.GetAsync($"/vehicles/{registrationNumber}", cancellationToken);
             
             if (response.StatusCode == HttpStatusCode.NotFound)
             {

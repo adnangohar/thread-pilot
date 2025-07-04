@@ -4,7 +4,6 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- ASP.NET -->
-
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="9.0.6" />
     <PackageVersion Include="Microsoft.Extensions.Configuration" Version="9.0.6" />
     <PackageVersion Include="Microsoft.Extensions.Hosting" Version="9.0.6" />
@@ -22,37 +21,23 @@
     <PackageVersion Include="MediatR" Version="12.5.0" />
     <PackageVersion Include="MediatR.Extensions.FluentValidation.AspNetCore" Version="6.0.0" />
     <PackageVersion Include="FluentValidation" Version="11.11.0" />
-    <PackageVersion Include="FluentValidation.AspNetCore" Version="11.3.0" />
     <PackageVersion Include="AutoMapper" Version="14.0.0" />
-    <!-- Auth -->
-    <PackageVersion Include="Microsoft.Extensions.Identity.Core" Version="8.0.0" />
     <PackageVersion Include="Serilog.AspNetCore" Version="9.0.0" />
-    <PackageVersion Include="System.IdentityModel.Tokens.Jwt" Version="7.2.0" />
-    <PackageVersion Include="Microsoft.AspNetCore.Authentication" Version="2.2.0" />
-    <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" />
+
     <!-- Entity Framework -->
     <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="9.0.6" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.6" />
-    <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.6" />
-    <PackageVersion Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.6" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.InMemory" Version="9.0.6" />
+    
     <!-- Tests -->
     <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="9.0.6" />
     <PackageVersion Include="FluentAssertions" Version="6.12.0" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
-    <PackageVersion Include="throw" Version="1.4.0" />
     <PackageVersion Include="xunit" Version="2.9.2" />
     <PackageVersion Include="xunit.runner.visualstudio" Version="2.8.2" />
     <PackageVersion Include="coverlet.collector" Version="6.0.2" />
     <PackageVersion Include="Moq" Version="4.20.70" />
     <PackageVersion Include="Bogus" Version="35.6.1" />
-    <!-- Monitoring -->
-    <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.12.0" />
-    <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.12.0" />
-    <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="1.12.0" />
-    <PackageVersion Include="OpenTelemetry.Exporter.Console" Version="1.12.0" />
-    <!-- Swagger -->
-    <PackageVersion Include="Swashbuckle.AspNetCore" Version="9.0.1" />
 
     <!-- ActiveLogin -->
     <PackageVersion Include="ActiveLogin.Identity.Swedish" Version="3.0.0" />

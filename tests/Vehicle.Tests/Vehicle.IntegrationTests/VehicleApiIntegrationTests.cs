@@ -69,7 +69,7 @@ public class VehicleApiIntegrationTests : IClassFixture<WebApplicationFactory<Pr
         // Arrange
         EnsureTestDataExists();
         
-        var registrationNumber = "ABC123";
+        var registrationNumber = "ABD123";
 
         // Act
         var response = await _client.GetAsync($"/vehicles/{registrationNumber}");
@@ -121,7 +121,7 @@ public class VehicleApiIntegrationTests : IClassFixture<WebApplicationFactory<Pr
         var vehicles = new Vehicle.Domain.Entities.Vehicle[]
         {
             new Vehicle.Domain.Entities.Vehicle(
-                new RegistrationNumber("ABC123"), 
+                new RegistrationNumber("ABD123"), 
                 "Toyota", 
                 "Camry", 
                 2023, 

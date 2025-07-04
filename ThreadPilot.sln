@@ -48,6 +48,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.gitignore = .gitignore
 		Directory.Packages.props = Directory.Packages.props
 		docker-compose.yml = docker-compose.yml
+		README.md = README.md
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Insurance.Contracts", "src\Services\Insurance\Insurance.Contracts\Insurance.Contracts.csproj", "{E7AF887A-B013-4048-B5C0-B9476B63BFCF}"
@@ -55,6 +56,12 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vehicle.Contracts", "src\Services\Vehicle\Vehicle.Contracts\Vehicle.Contracts.csproj", "{46566CBA-66A0-44ED-A8CA-751F5AD0156B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Insurance.Api", "src\Services\Insurance\Insurance.Api\Insurance.Api.csproj", "{C834CFAE-903D-4CF1-A569-A027098505A5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docker", "docker", "{5F3F916C-0321-8A9F-8AC0-501F442D9F72}"
+	ProjectSection(SolutionItems) = preProject
+		docker\Insurance.Api.Dockerfile = docker\Insurance.Api.Dockerfile
+		docker\Vehicle.Api.Dockerfile = docker\Vehicle.Api.Dockerfile
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

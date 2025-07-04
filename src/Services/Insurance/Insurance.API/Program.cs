@@ -3,8 +3,23 @@ using FastEndpoints.Swagger;
 using ThreadPilot.Common.Extensions;
 using Insurance.Infrastructure.Extensions;
 using Insurance.Application.Extensions;
+using Scalar.AspNetCore;
+using Insurance.Contracts;
+using FluentValidation;
+using Insurance.Api.Validation;
+using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Configure Serilog
+Log.Logger = new LoggerConfiguration()
+    .Enrich.FromLogContext()
+    .Enrich.WithProperty("Service", "Insurance.Api")
+    .WriteTo.Console()
+    .CreateLogger();
+
+builder.Host.UseSerilog();
 
 // Add Common Services
 builder.Services.AddCommonServices();
@@ -16,11 +31,34 @@ builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 
 // Add FastEndpoints
-builder.Services.AddFastEndpoints().SwaggerDocument();
+builder.Services.AddFastEndpoints().AddSwaggerDocument();
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+// Add OpenAPI support
+ builder.Services.AddOpenApi();
+
+// Register health checks
+builder.Services.AddHealthChecks();
+
+// Add Cors
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.AllowAnyOrigin()
+                .AllowAnyHeader()
+                .AllowAnyMethod();
+    });
+});
+
+// HttpJson options
+builder.Services.ConfigureHttpJsonOptions(options =>
+{
+    options.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase; // Use default property names
+    options.SerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull; // Ignore null value
+    options.SerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter()); // Handle enums as strings
+});
+
+builder.Services.AddTransient<IValidator<GetPersonInsurancesRequest>, GetPersonInsurancesRequestValidator>();
 
 var app = builder.Build();
 
@@ -29,25 +67,35 @@ using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<InsuranceDbContext>();
     context.Database.EnsureCreated(); // This creates the database if it doesn't exist
-    
 }
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
-    
-    // Add Swagger UI for FastEndpoints
-    app.UseSwaggerUI(c =>
+    app.MapScalarApiReference(options =>
     {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Insurance Service API v1");
-        c.RoutePrefix = string.Empty;
+        options
+            .WithTitle("Insurance Service API")
+            .WithDarkMode(true)
+            .WithTheme(ScalarTheme.BluePlanet)
+            .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.AsyncHttp);
     });
 }
 
-app.UseHttpsRedirection();
+// Map the health check endpoint
+app.MapHealthChecks("/health");
 
-// Use FastEndpoints
+// Enable CORS
+app.UseCors();
+
+// Use HTTPS redirection only if HTTPS is configured
+if (app.Configuration.GetValue<string>("ASPNETCORE_URLS")?.Contains("https") == true)
+{
+    app.UseHttpsRedirection();
+}
+
+// Use FastEndpoints and FastEndpoints Swagger
 app.UseFastEndpoints().UseSwaggerGen();
 
 app.Run();

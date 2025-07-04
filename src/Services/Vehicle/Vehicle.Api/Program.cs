@@ -4,8 +4,18 @@ using FastEndpoints.Swagger;
 using ThreadPilot.Common.Extensions;
 using Vehicle.Infrastructure.Extensions;
 using Vehicle.Application.Extensions;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Configure Serilog
+Log.Logger = new LoggerConfiguration()
+    .Enrich.FromLogContext()
+    .Enrich.WithProperty("Service", "Vehicle.Api")
+    .WriteTo.Console()
+    .CreateLogger();
+
+builder.Host.UseSerilog();
 
 // Add Common Services
 builder.Services.AddCommonServices();
@@ -19,9 +29,22 @@ builder.Services.AddInfrastructure(builder.Configuration);
 // Add FastEndpoints
 builder.Services.AddFastEndpoints().AddSwaggerDocument();
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+// Add OpenAPI support
  builder.Services.AddOpenApi();
+
+// Register health checks
+builder.Services.AddHealthChecks();
+
+// Add Cors
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.AllowAnyOrigin()
+                .AllowAnyHeader()
+                .AllowAnyMethod();
+    });
+});
 
 var app = builder.Build();
 
@@ -30,7 +53,6 @@ using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<VehicleDbContext>();
     context.Database.EnsureCreated(); // This creates the database if it doesn't exist
-    
 }
 
 // Configure the HTTP request pipeline.
@@ -47,35 +69,20 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-app.UseHttpsRedirection();
-// app.UseCors("AllowAll");
+// Map the health check endpoint
+app.MapHealthChecks("/health");
+
+// Enable CORS
+app.UseCors();
+
+// Use HTTPS redirection only if HTTPS is configured
+if (app.Configuration.GetValue<string>("ASPNETCORE_URLS")?.Contains("https") == true)
+{
+    app.UseHttpsRedirection();
+}
 
 // Use FastEndpoints and FastEndpoints Swagger
-// Use FastEndpoints
 app.UseFastEndpoints().UseSwaggerGen();
-
-// Log.Logger = new LoggerConfiguration()
-//     .ReadFrom.Configuration(builder.Configuration)
-//     .Enrich.FromLogContext()
-//     .Enrich.WithProperty("Service", "Vehicle.API")
-//     .WriteTo.Console()
-//     .WriteTo.File("logs/vehicle-api-.txt", rollingInterval: RollingInterval.Day)
-//     .CreateLogger();
-
-// Add Serilog
-// builder.Host.UseSerilog((context, services, configuration) => configuration
-//     .ReadFrom.Configuration(context.Configuration)
-//     .ReadFrom.Services(services)
-//     .Enrich.FromLogContext()
-//     .WriteTo.Console(new CompactJsonFormatter()));
-
-// Configure JSON options for .NET 9
-// builder.Services.ConfigureHttpJsonOptions(options =>
-// {
-//     options.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
-//     options.SerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
-//     options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
-// });
 
 // Add API Versioning
 // builder.Services.AddApiVersioning(options =>
@@ -84,17 +91,6 @@ app.UseFastEndpoints().UseSwaggerGen();
 //     options.AssumeDefaultVersionWhenUnspecified = true;
 //     options.ReportApiVersions = true;
 //     options.ApiVersionReader = new UrlSegmentApiVersionReader();
-// });
-
-// Add CORS
-// builder.Services.AddCors(options =>
-// {
-//     options.AddPolicy("AllowAll", policy =>
-//     {
-//         policy.AllowAnyOrigin()
-//               .AllowAnyMethod()
-//               .AllowAnyHeader();
-//     });
 // });
 
 app.Run();

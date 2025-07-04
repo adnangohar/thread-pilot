@@ -13,11 +13,7 @@
     <PackageReference Include="FastEndpoints.Swagger" />
     <PackageReference Include="FluentValidation" />
     <PackageReference Include="Serilog.AspNetCore" />
-    <PackageReference Include="OpenTelemetry.Extensions.Hosting" />
-    <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" />
-    <PackageReference Include="OpenTelemetry.Instrumentation.Http" />
-    <PackageReference Include="OpenTelemetry.Exporter.Console" />
-    <PackageReference Include="Swashbuckle.AspNetCore" />
+    <PackageReference Include="Scalar.AspNetCore" />
   </ItemGroup>
 
   <ItemGroup>

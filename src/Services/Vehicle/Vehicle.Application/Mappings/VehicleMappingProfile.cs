@@ -9,6 +9,6 @@ public class VehicleMappingProfile : Profile
     {
         CreateMap<Domain.Entities.Vehicle, VehicleResult>()
             .ForMember(dest => dest.RegistrationNumber,
-                opt => opt.MapFrom(src => src.RegistrationNumber.Value));
+                opt => opt.MapFrom(src => src.RegistrationNumber));
     }
 }

@@ -4,7 +4,6 @@ using MediatR;
 using Vehicle.Application.Queries.GetVehicle;
 using Vehicle.Api.Validation;
 using Vehicle.Application.Common;
-using FluentValidation;
 
 namespace Vehicle.Api.Endpoints;
 

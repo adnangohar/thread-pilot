@@ -1,8 +1,14 @@
-using Vehicle.Application;
-using Vehicle.Infrastructure;
 using Scalar.AspNetCore;
+using Vehicle.Infrastructure.Persistence;
+using FastEndpoints.Swagger;
+using ThreadPilot.Common.Extensions;
+using Vehicle.Infrastructure.Extensions;
+using Vehicle.Application.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Add Common Services
+builder.Services.AddCommonServices();
 
 // Add Application
 builder.Services.AddApplication();
@@ -19,9 +25,17 @@ builder.Services.AddFastEndpoints().AddSwaggerDocument();
 
 var app = builder.Build();
 
+// Ensure database is created
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<VehicleDbContext>();
+    context.Database.EnsureCreated(); // This creates the database if it doesn't exist
+    
+}
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
-{   
+{
     app.MapOpenApi();
     app.MapScalarApiReference(options =>
     {
@@ -37,7 +51,8 @@ app.UseHttpsRedirection();
 // app.UseCors("AllowAll");
 
 // Use FastEndpoints and FastEndpoints Swagger
-app.UseFastEndpoints();
+// Use FastEndpoints
+app.UseFastEndpoints().UseSwaggerGen();
 
 // Log.Logger = new LoggerConfiguration()
 //     .ReadFrom.Configuration(builder.Configuration)
@@ -83,3 +98,5 @@ app.UseFastEndpoints();
 // });
 
 app.Run();
+
+public partial class Program { } // For integration tests

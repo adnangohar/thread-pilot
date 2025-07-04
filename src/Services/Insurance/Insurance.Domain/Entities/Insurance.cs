@@ -25,12 +25,4 @@ public class Insurance
         CreatedAt = DateTime.UtcNow;
         VehicleRegistrationNumber = vehicleRegistrationNumber;
     }
-    public void SetVehicleRegistration(string registrationNumber)
-    {
-        if (Type != InsuranceType.Car)
-            throw new InvalidOperationException("Vehicle registration can only be set for car insurance");
-            
-        VehicleRegistrationNumber = registrationNumber;
-        UpdatedAt = DateTime.UtcNow;
-    }
 }

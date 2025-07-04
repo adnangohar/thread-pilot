@@ -8,6 +8,6 @@ public class GetVehicleByRegistrationNumberQueryValidator : AbstractValidator<Ge
     {
         RuleFor(x => x.RegistrationNumber)
             .NotEmpty().WithMessage("Registration number is required.")
-            .MaximumLength(20).WithMessage("Registration number must not exceed 20 characters.");
+            .MaximumLength(6).WithMessage("Registration number must not exceed 6 characters.");
     }
 }

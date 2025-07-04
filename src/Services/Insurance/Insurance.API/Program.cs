@@ -1,10 +1,13 @@
-using Insurance.Application;
-using Insurance.Infrastructure;
 using Insurance.Infrastructure.Persistence;
 using FastEndpoints.Swagger;
-using Microsoft.EntityFrameworkCore;
+using ThreadPilot.Common.Extensions;
+using Insurance.Infrastructure.Extensions;
+using Insurance.Application.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Add Common Services
+builder.Services.AddCommonServices();
 
 // Add Application
 builder.Services.AddApplication();

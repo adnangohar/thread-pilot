@@ -1,0 +1,34 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+    <PackageReference Include="Moq" />
+    <PackageReference Include="AutoMapper" />
+    <PackageReference Include="FluentAssertions" />
+    <PackageReference Include="FluentValidation" />
+    <PackageReference Include="Bogus" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\Services\Insurance\Insurance.Application\Insurance.Application.csproj" />
+    <ProjectReference Include="..\..\..\src\Services\Insurance\Insurance.Domain\Insurance.Domain.csproj" />
+    <ProjectReference Include="..\..\..\src\Services\Insurance\Insurance.Contracts\Insurance.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\src\Services\Insurance\Insurance.Api\Insurance.Api.csproj" />
+    <ProjectReference Include="..\..\..\src\Services\Vehicle\Vehicle.Contracts\Vehicle.Contracts.csproj" />
+  </ItemGroup>
+
+</Project>

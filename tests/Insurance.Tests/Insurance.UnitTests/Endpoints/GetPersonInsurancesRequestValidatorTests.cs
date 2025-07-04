@@ -3,7 +3,7 @@ using FluentValidation.TestHelper;
 using Insurance.Api.Validation;
 using Insurance.Contracts;
 
-namespace Insurance.UnitTests.Endpoint;
+namespace Insurance.UnitTests.Endpoints;
 
 public class GetPersonInsurancesRequestValidatorTests
 {

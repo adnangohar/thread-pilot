@@ -1,17 +1,16 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
-using Vehicle.Contracts;
 using ProblemDetails = FastEndpoints.ProblemDetails;
-using IMapper = AutoMapper.IMapper;
 using MediatR;
 using Vehicle.Application.Queries.GetVehicle;
 using Vehicle.Api.Validation;
+using Vehicle.Application.Common;
+using FluentValidation;
 
 namespace Vehicle.Api.Endpoints;
 
-public class GetVehicleEndpoint : EndpointWithoutRequest<Results<Ok<VehicleResponse>, NotFound<ProblemDetails>>>
+public class GetVehicleEndpoint : EndpointWithoutRequest<Results<Ok<VehicleResult>, NotFound<ProblemDetails>>>
 {
     private readonly IMediator _mediator;
-    private readonly IMapper _mapper;
     private readonly ILogger<GetVehicleEndpoint> _logger;
 
     public override void Configure()
@@ -19,7 +18,7 @@ public class GetVehicleEndpoint : EndpointWithoutRequest<Results<Ok<VehicleRespo
         Get("/vehicles/{registrationNumber}");
         AllowAnonymous();
         Description(b => b
-            .Produces<VehicleResponse>(200, "application/json")
+            .Produces<VehicleResult>(200, "application/json")
             .ProducesProblem(404)
             .ProducesProblem(500)
             .WithTags("Vehicles")
@@ -27,14 +26,13 @@ public class GetVehicleEndpoint : EndpointWithoutRequest<Results<Ok<VehicleRespo
             .WithDescription("Retrieves vehicle information by its registration number"));
     }
 
-    public GetVehicleEndpoint(IMediator mediator, IMapper mapper, ILogger<GetVehicleEndpoint> logger)
+    public GetVehicleEndpoint(IMediator mediator, ILogger<GetVehicleEndpoint> logger)
     {
         _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
-        _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    public override async Task<Results<Ok<VehicleResponse>, NotFound<ProblemDetails>>> ExecuteAsync(CancellationToken ct)
+    public override async Task<Results<Ok<VehicleResult>, NotFound<ProblemDetails>>> ExecuteAsync(CancellationToken ct)
     {
         var registrationNumber = Route<string>("registrationNumber");
         var validationError = RegistrationNumberValidator.Validate(registrationNumber);
@@ -64,6 +62,6 @@ public class GetVehicleEndpoint : EndpointWithoutRequest<Results<Ok<VehicleRespo
         }
 
         _logger.LogInformation("Successfully retrieved vehicle {RegistrationNumber}", registrationNumber);
-        return TypedResults.Ok(_mapper.Map<VehicleResponse>(vehicle));
+        return TypedResults.Ok(vehicle);
     }
 }

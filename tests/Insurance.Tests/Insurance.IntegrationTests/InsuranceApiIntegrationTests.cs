@@ -10,9 +10,10 @@ using Vehicle.Contracts;
 using FluentValidation;
 using Insurance.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
-using Insurance.Domain.Entities;
 using Insurance.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using DomainInsuranceType = Insurance.Domain.Enums.InsuranceType;
+using Insurance.Application.Common;
 
 namespace Insurance.IntegrationTests;
 
@@ -113,20 +114,20 @@ public class InsuranceApiIntegrationTests : IClassFixture<WebApplicationFactory<
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         
-        var content = await response.Content.ReadFromJsonAsync<PersonInsurancesResponse>();
+        var content = await response.Content.ReadFromJsonAsync<PersonInsurancesResult>();
         content.Should().NotBeNull();
         content!.PersonalIdentificationNumber.Should().Be(personalId);
         content.Insurances.Should().HaveCount(3);
         content.TotalMonthlyCost.Should().Be(60m);
         
-        var carPolicy = content.Insurances.OfType<CarInsuranceResponse>().FirstOrDefault();
+        var carPolicy = content.Insurances.FirstOrDefault(x => x.Type == Insurance.Contracts.InsuranceType.Car);
         carPolicy.Should().NotBeNull();
-        carPolicy!.Vehicle.Should().NotBeNull();
-        carPolicy.Vehicle!.Make.Should().Be("Toyota");
+        carPolicy!.VehicleInfo.Should().NotBeNull();
+        carPolicy.VehicleInfo!.Make.Should().Be("Toyota");
     }
 
     [Fact]
-    public async Task GetInsurances_NonExistentPerson_ReturnsNotFound()
+    public async Task GetInsurances_NonExistentPerson_ReturnsOkWithEmptyResult()
     {
         // Arrange
         EnsureTestDataExists();
@@ -138,7 +139,13 @@ public class InsuranceApiIntegrationTests : IClassFixture<WebApplicationFactory<
         var response = await _client.PostAsJsonAsync("/insurances", request);
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        
+        var content = await response.Content.ReadFromJsonAsync<PersonInsurancesResult>();
+        content.Should().NotBeNull();
+        content!.PersonalIdentificationNumber.Should().Be(personalId);
+        content.Insurances.Should().BeEmpty();
+        content.TotalMonthlyCost.Should().Be(0m);
     }
 
     [Fact]
@@ -148,6 +155,12 @@ public class InsuranceApiIntegrationTests : IClassFixture<WebApplicationFactory<
         EnsureTestDataExists();
         
         var request = new GetPersonInsurancesRequest { PersonalIdentificationNumber = "ABC" }; // Too short
+
+          _validatorMock.Setup(v => v.ValidateAsync(It.IsAny<GetPersonInsurancesRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new FluentValidation.Results.ValidationResult(
+                [
+                    new FluentValidation.Results.ValidationFailure("PersonalIdentificationNumber", "Invalid personal identification number format.")
+                ]));
 
         // Act
         var response = await _client.PostAsJsonAsync("/insurances", request);
@@ -175,13 +188,13 @@ public class InsuranceApiIntegrationTests : IClassFixture<WebApplicationFactory<
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         
-        var content = await response.Content.ReadFromJsonAsync<PersonInsurancesResponse>();
+        var content = await response.Content.ReadFromJsonAsync<PersonInsurancesResult>();
         content.Should().NotBeNull();
-        content!.Insurances.Should().HaveCount(3);
+        content!.Insurances.Should().HaveCount(1);
         
-        var carPolicy = content.Insurances.OfType<CarInsuranceResponse>().FirstOrDefault();
+        var carPolicy = content.Insurances.FirstOrDefault(x => x.Type == Insurance.Contracts.InsuranceType.Car);
         carPolicy.Should().NotBeNull();
-        carPolicy!.Vehicle.Should().BeNull(); // Vehicle info not available
+        carPolicy!.VehicleInfo.Should().BeNull(); // Vehicle info not available
     }
 
     private void SeedTestData(InsuranceDbContext context)
@@ -191,11 +204,12 @@ public class InsuranceApiIntegrationTests : IClassFixture<WebApplicationFactory<
         
         var insurances = new Insurance.Domain.Entities.Insurance[]
         {
-            new PersonalHealthInsurance(person1),
-            new PetInsurance(person1),
-            new CarInsurance(person1, "CAR123"),
-            new PersonalHealthInsurance(person2)
+            new Insurance.Domain.Entities.Insurance(person1, 20m, DomainInsuranceType.PersonalHealth),
+            new Insurance.Domain.Entities.Insurance(person1, 15m, DomainInsuranceType.Pet),
+            new Insurance.Domain.Entities.Insurance(person1, 25m, DomainInsuranceType.Car, "CAR123"),
+            new Insurance.Domain.Entities.Insurance(person2, 30m, DomainInsuranceType.Car, "CAR456")
         };
+        
         context.Insurances.AddRange(insurances);
         context.SaveChanges();
     }

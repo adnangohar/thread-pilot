@@ -1,6 +1,6 @@
 using System;
 
-namespace Vehicle.Contracts;
+namespace Insurance.Contracts;
 
 public class VehicleResponse
 {

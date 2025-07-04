@@ -1,4 +1,4 @@
-using Vehicle.Contracts;
+using Insurance.Contracts;
 
 namespace Insurance.Application.Interfaces;
 

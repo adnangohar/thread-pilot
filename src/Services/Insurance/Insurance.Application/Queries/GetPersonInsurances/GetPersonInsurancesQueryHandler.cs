@@ -4,7 +4,6 @@ using Insurance.Application.Common;
 using Insurance.Domain.Repositories;
 using Insurance.Domain.ValueObjects;
 using Insurance.Contracts;
-using Insurance.Domain.Entities;
 using Insurance.Application.Interfaces;
 using Microsoft.Extensions.Logging;
 
@@ -38,49 +37,54 @@ public class GetPersonInsurancesQueryHandler : IRequestHandler<GetPersonInsuranc
             var insurancesList = insurances.ToList();
             if (!insurancesList.Any())
             {
-                return null;
+                _logger.LogWarning("No insurances found for person: {PersonalIdentificationNumber}", request.PersonalIdentificationNumber);
+                return new PersonInsurancesResult
+                {
+                    PersonalIdentificationNumber = request.PersonalIdentificationNumber,
+                    Insurances = [],
+                    TotalMonthlyCost = 0
+                };
             }
 
-            var result = new PersonInsurancesResult
+            var personInsurancesResult = new PersonInsurancesResult
             {
                 PersonalIdentificationNumber = request.PersonalIdentificationNumber,
                 Insurances = new List<InsuranceResponse>()
             };
 
-            foreach (var insurance in insurancesList)
+
+
+            foreach (var insurance in insurances)
             {
-                var contract = await MapInsuranceToContract(insurance, cancellationToken);
-                if (contract != null)
+                var insuranceResponse = _mapper.Map<InsuranceResponse>(insurance);
+                
+                // If it's car insurance, fetch vehicle details
+                if (insurance.Type == Domain.Enums.InsuranceType.Car && !string.IsNullOrEmpty(insurance.VehicleRegistrationNumber))
                 {
-                    result.Insurances.Add(contract);
+                    try
+                    {
+                        var vehicleInfo = await _vehicleService.GetVehicleInfoAsync(insurance.VehicleRegistrationNumber, cancellationToken);
+                        if (vehicleInfo != null)
+                        {
+                            insuranceResponse.VehicleInfo = vehicleInfo;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Error fetching vehicle info for registration number: {VehicleRegistrationNumber}", insurance.VehicleRegistrationNumber);
+                    }
                 }
+                
+                personInsurancesResult.Insurances.Add(insuranceResponse);
             }
 
-            result.TotalMonthlyCost = result.Insurances.Sum(i => i.MonthlyCost);
-            return result;
+            personInsurancesResult.TotalMonthlyCost = personInsurancesResult.Insurances.Sum(i => i.MonthlyCost);
+            return personInsurancesResult;
         }
-        catch (ArgumentException)
+        catch (Exception)
         {
-            // Optionally log warning
+            _logger.LogError("An error occurred while processing the GetPersonInsurancesQuery for {PersonalIdentificationNumber}", request.PersonalIdentificationNumber);
             return null;
-        }
-    }
-
-    private async Task<InsuranceResponse?> MapInsuranceToContract(Insurance.Domain.Entities.Insurance insurance, CancellationToken cancellationToken)
-    {
-        switch (insurance)
-        {
-            case CarInsurance carInsurance:
-                var carContract = _mapper.Map<CarInsuranceResponse>(carInsurance);
-                carContract.Vehicle = await _vehicleService.GetVehicleInfoAsync(carInsurance.VehicleRegistrationNumber, cancellationToken);
-                return carContract;
-            case PetInsurance petInsurance:
-                return _mapper.Map<PetInsuranceResponse>(petInsurance);
-            case PersonalHealthInsurance healthInsurance:
-                return _mapper.Map<PersonalHealthInsuranceResponse>(healthInsurance);
-            default:
-                _logger.LogWarning("Unknown insurance type: {InsuranceType}", insurance.GetType().Name);
-                return null;
         }
     }
 }

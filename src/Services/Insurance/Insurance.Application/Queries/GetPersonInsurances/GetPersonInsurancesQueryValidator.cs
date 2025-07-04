@@ -9,8 +9,9 @@ public class GetPersonInsurancesQueryValidator : AbstractValidator<GetPersonInsu
     {
         RuleFor(x => x.PersonalIdentificationNumber)
             .NotEmpty().WithMessage("Personal identification number is required.")
-            .Must(IsValidSwedishPersonalNumber).WithMessage("Personal identification number is invalid.")
-            .MaximumLength(20).WithMessage("Personal identification number must not exceed 13 characters.");
+            .MaximumLength(13).WithMessage("Personal identification number must not exceed 13 characters.")
+            .Must(IsValidSwedishPersonalNumber).WithMessage("Personal identification number is invalid.");
+
     }
 
     private static bool IsValidSwedishPersonalNumber(string personalNumber)

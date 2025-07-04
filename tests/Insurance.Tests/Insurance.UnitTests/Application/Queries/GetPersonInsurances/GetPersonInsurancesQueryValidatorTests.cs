@@ -67,7 +67,7 @@ public class GetPersonInsurancesQueryValidatorTests
     public void Should_Have_Error_When_PersonalIdentificationNumber_Exceeds_Maximum_Length()
     {
         // Arrange
-        var longPersonalNumber = new string('1', 21); // 21 characters, exceeds max of 20
+        var longPersonalNumber = new string('1', 14); // 14 characters, exceeds max of 13
         var query = new GetPersonInsurancesQuery(longPersonalNumber);
 
         // Act
@@ -75,7 +75,7 @@ public class GetPersonInsurancesQueryValidatorTests
 
         // Assert
         result.ShouldHaveValidationErrorFor(x => x.PersonalIdentificationNumber)
-            .WithErrorMessage("Personal identification number must not exceed 20 characters.");
+            .WithErrorMessage("Personal identification number must not exceed 13 characters.");
     }
 
     [Theory]

@@ -4,17 +4,19 @@ using Insurance.Domain.ValueObjects;
 
 namespace Insurance.Domain.Entities;
 
-public abstract class Insurance
+public class Insurance
 {
-    public Guid Id { get; protected set; }
-    public string PersonalId { get; protected set; }
-    public decimal MonthlyCost { get; protected set; }
-    public InsuranceType Type { get; protected set; }
+    public Guid Id { get; set; }
+    public string PersonalId { get; set; }
+    public decimal MonthlyCost { get; set; }
+    public InsuranceType Type { get; set; }
     public string? VehicleRegistrationNumber { get; private set; } // For car insurance
     public DateTime CreatedAt { get; private set; }
     public DateTime? UpdatedAt { get; private set; }
 
-    protected Insurance(PersonalIdentificationNumber personalId, decimal monthlyCost, InsuranceType type, string vehicleRegistrationNumber = null)
+    protected Insurance() { } // EF Core
+    
+    public Insurance(PersonalIdentificationNumber personalId, decimal monthlyCost, InsuranceType type, string vehicleRegistrationNumber = null)
     {
         Id = Guid.NewGuid();
         PersonalId = personalId.Value ?? throw new ArgumentNullException(nameof(personalId));
@@ -22,5 +24,13 @@ public abstract class Insurance
         Type = type;
         CreatedAt = DateTime.UtcNow;
         VehicleRegistrationNumber = vehicleRegistrationNumber;
+    }
+    public void SetVehicleRegistration(string registrationNumber)
+    {
+        if (Type != InsuranceType.Car)
+            throw new InvalidOperationException("Vehicle registration can only be set for car insurance");
+            
+        VehicleRegistrationNumber = registrationNumber;
+        UpdatedAt = DateTime.UtcNow;
     }
 }

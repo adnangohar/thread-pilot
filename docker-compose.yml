@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  # Vehicle API Service
+  vehicle-api:
+    build:
+      context: .
+      dockerfile: docker/Vehicle.Api.Dockerfile
+    container_name: vehicle-api
+    ports:
+      - "5001:8080"  # HTTP
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__DefaultConnection=Data Source=/app/vehicle.db
+    networks:
+      - threadpilot-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+
+  # Insurance API Service
+  insurance-api:
+    build:
+      context: .
+      dockerfile: docker/Insurance.Api.Dockerfile
+    container_name: insurance-api
+    ports:
+      - "5002:8080"  # HTTP
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__DefaultConnection=Data Source=/app/insurance.db
+      - VehicleService__BaseUrl=http://host.docker.internal:5001
+    depends_on:
+      - vehicle-api
+    networks:
+      - threadpilot-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+
+networks:
+  threadpilot-network:
+    driver: bridge
+    name: threadpilot-network

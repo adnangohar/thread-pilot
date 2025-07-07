@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net9.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" />
+    <PackageReference Include="FluentValidation" />
+    <PackageReference Include="MediatR" />
+    <PackageReference Include="MediatR.Extensions.FluentValidation.AspNetCore" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Shared\ThreadPilot.Common\ThreadPilot.Common.csproj" />
+    <ProjectReference Include="..\Vehicle.Contracts\Vehicle.Contracts.csproj" />
+    <ProjectReference Include="..\Vehicle.Domain\Vehicle.Domain.csproj" />
+  </ItemGroup>
+
+</Project>

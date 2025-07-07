@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net9.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="Services\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" />
+    <PackageReference Include="FluentValidation" />
+    <PackageReference Include="MediatR" />
+    <PackageReference Include="MediatR.Extensions.FluentValidation.AspNetCore" />
+    <PackageReference Include="ActiveLogin.Identity.Swedish" />
+    <PackageReference Include="Microsoft.FeatureManagement.AspNetCore" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Shared\ThreadPilot.Common\ThreadPilot.Common.csproj" />
+    <ProjectReference Include="..\..\Vehicle\Vehicle.Contracts\Vehicle.Contracts.csproj" />
+    <ProjectReference Include="..\Insurance.Contracts\Insurance.Contracts.csproj" />
+    <ProjectReference Include="..\Insurance.Domain\Insurance.Domain.csproj" />
+  </ItemGroup>
+
+</Project>

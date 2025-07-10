@@ -1,6 +1,6 @@
 using FluentValidation.TestHelper;
+using Insurance.Api.Contracts;
 using Insurance.Api.Validation;
-using Insurance.Contracts;
 
 namespace Insurance.UnitTests.Endpoints;
 

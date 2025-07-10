@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
 using ProblemDetails = FastEndpoints.ProblemDetails;
 using MediatR;
-using Vehicle.Application.Queries.GetVehicle;
+using Vehicle.Core.Queries.GetVehicle;
 using Vehicle.Api.Validation;
-using Vehicle.Application.Common;
+using Vehicle.Core.Common;
 
 namespace Vehicle.Api.Endpoints;
 

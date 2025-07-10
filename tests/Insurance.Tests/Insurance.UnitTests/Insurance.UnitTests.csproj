@@ -24,11 +24,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\Services\Insurance\Insurance.Application\Insurance.Application.csproj" />
-    <ProjectReference Include="..\..\..\src\Services\Insurance\Insurance.Domain\Insurance.Domain.csproj" />
-    <ProjectReference Include="..\..\..\src\Services\Insurance\Insurance.Contracts\Insurance.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\src\Services\Insurance\Insurance.Core\Insurance.Core.csproj" />
     <ProjectReference Include="..\..\..\src\Services\Insurance\Insurance.Api\Insurance.Api.csproj" />
-    <ProjectReference Include="..\..\..\src\Services\Vehicle\Vehicle.Contracts\Vehicle.Contracts.csproj" />
   </ItemGroup>
 
 </Project>

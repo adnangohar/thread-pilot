@@ -1,6 +1,6 @@
 using System.Text.Json;
-using Insurance.Application.Interfaces;
-using Insurance.Domain.Repositories;
+using Insurance.Core.Interfaces;
+using Insurance.Core.Repositories;
 using Insurance.Infrastructure.Persistence;
 using Insurance.Infrastructure.Repositories;
 using Insurance.Infrastructure.Services;

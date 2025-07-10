@@ -4,10 +4,10 @@ using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.Extensions.Logging;
 using Moq;
-using Vehicle.Application.Common;
-using Vehicle.Application.Queries.GetVehicle;
-using Vehicle.Domain.Repositories;
-using Vehicle.Domain.ValueObjects;
+using Vehicle.Core.Common;
+using Vehicle.Core.Queries.GetVehicle;
+using Vehicle.Core.Repositories;
+using Vehicle.Core.ValueObjects;
 
 namespace Vehicle.UnitTests.Application.Queries.GetVehicle;
 
@@ -37,7 +37,7 @@ public class GetVehicleByRegistrationNumberQueryHandlerTests
         var query = new GetVehicleByRegistrationNumberQuery(registrationNumber);
         var cancellationToken = CancellationToken.None;
 
-        var vehicle = new Domain.Entities.Vehicle(
+        var vehicle = new Core.Entities.Vehicle(
             new RegistrationNumber(registrationNumber),
             make: "Toyota",
             model: "Camry",
@@ -90,7 +90,7 @@ public class GetVehicleByRegistrationNumberQueryHandlerTests
 
         _vehicleRepositoryMock
             .Setup(r => r.GetByRegistrationNumberAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((Domain.Entities.Vehicle?)null);
+            .ReturnsAsync((Core.Entities.Vehicle?)null);
 
         // Act
         var result = await _handler.Handle(query, cancellationToken);
@@ -100,7 +100,7 @@ public class GetVehicleByRegistrationNumberQueryHandlerTests
 
         _vehicleRepositoryMock.Verify(r => r.GetByRegistrationNumberAsync(
             It.Is<string>(rn => rn == registrationNumber), It.IsAny<CancellationToken>()), Times.Once);
-        _mapperMock.Verify(m => m.Map<VehicleResult>(It.IsAny<Domain.Entities.Vehicle>()), Times.Never);
+        _mapperMock.Verify(m => m.Map<VehicleResult>(It.IsAny<Core.Entities.Vehicle>()), Times.Never);
     }
 
     [Fact]
@@ -129,6 +129,6 @@ public class GetVehicleByRegistrationNumberQueryHandlerTests
 
         // Verify that repository was never called due to invalid format
         _vehicleRepositoryMock.Verify(r => r.GetByRegistrationNumberAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
-        _mapperMock.Verify(m => m.Map<VehicleResult>(It.IsAny<Domain.Entities.Vehicle>()), Times.Never);
+        _mapperMock.Verify(m => m.Map<VehicleResult>(It.IsAny<Core.Entities.Vehicle>()), Times.Never);
     }
 }

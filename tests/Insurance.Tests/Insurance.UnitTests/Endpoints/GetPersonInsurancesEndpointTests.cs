@@ -1,8 +1,5 @@
 using FluentAssertions;
 using Insurance.Api.Endpoints;
-using Insurance.Application.Common;
-using Insurance.Application.Queries.GetPersonInsurances;
-using Insurance.Contracts;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -11,7 +8,10 @@ using System.Reflection;
 using ProblemDetails = FastEndpoints.ProblemDetails;
 using FluentValidation;
 using FluentValidation.Results;
-using ContractsInsuranceType = Insurance.Contracts.InsuranceType;
+using DomainInsuranceType = Insurance.Core.Enums.InsuranceType;
+using Insurance.Api.Contracts;
+using Insurance.Core.Queries.GetPersonInsurances;
+using Insurance.Core.Common;
 
 namespace Insurance.UnitTests.Endpoints;
 
@@ -50,8 +50,8 @@ public class GetPersonInsurancesEndpointTests
             PersonalIdentificationNumber = pin,
             Insurances = new List<InsuranceResponse>
             {
-                new InsuranceResponse { Type = ContractsInsuranceType.PersonalHealth, MonthlyCost = 100.00m },
-                new InsuranceResponse { Type = ContractsInsuranceType.Pet, MonthlyCost = 50.00m }
+                new InsuranceResponse { Type = DomainInsuranceType.PersonalHealth, MonthlyCost = 100.00m },
+                new InsuranceResponse { Type = DomainInsuranceType.Pet, MonthlyCost = 50.00m }
             },
             TotalMonthlyCost = 150.00m
         };

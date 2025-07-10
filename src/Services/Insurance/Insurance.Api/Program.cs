@@ -2,13 +2,13 @@ using Insurance.Infrastructure.Persistence;
 using FastEndpoints.Swagger;
 using ThreadPilot.Common.Extensions;
 using Insurance.Infrastructure.Extensions;
-using Insurance.Application.Extensions;
 using Scalar.AspNetCore;
-using Insurance.Contracts;
 using FluentValidation;
 using Insurance.Api.Validation;
 using System.Text.Json;
 using Microsoft.FeatureManagement;
+using Insurance.Api.Contracts;
+using Insurance.Core.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,7 +24,7 @@ builder.Host.UseSerilog();
 // Add Common Services
 builder.Services.AddCommonServices();
 
-// Add Application
+// Add Application Services
 builder.Services.AddApplication();
 
 // Add Infrastructure

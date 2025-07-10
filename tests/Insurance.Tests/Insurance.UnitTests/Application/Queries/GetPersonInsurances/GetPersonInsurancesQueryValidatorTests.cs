@@ -1,5 +1,5 @@
 using FluentValidation.TestHelper;
-using Insurance.Application.Queries.GetPersonInsurances;
+using Insurance.Core.Queries.GetPersonInsurances;
 
 namespace Insurance.UnitTests.Application.Queries.GetPersonInsurances;
 

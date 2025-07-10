@@ -1,4 +1,5 @@
-using Insurance.Domain.Enums;
+using Insurance.Core.Enums;
+using InsuranceEntity = Insurance.Core.Entities.Insurance;
 using Microsoft.EntityFrameworkCore;
 
 namespace Insurance.Infrastructure.Persistence
@@ -9,14 +10,14 @@ namespace Insurance.Infrastructure.Persistence
         {
         }
 
-        public DbSet<Domain.Entities.Insurance> Insurances { get; set; }
+        public DbSet<InsuranceEntity> Insurances { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(InsuranceDbContext).Assembly);
             
             // Seed data for testing
-            modelBuilder.Entity<Domain.Entities.Insurance>().HasData(
+            modelBuilder.Entity<InsuranceEntity>().HasData(
                 new 
                 {
                     Id = Guid.Parse("33333333-3333-3333-3333-333333333333"),

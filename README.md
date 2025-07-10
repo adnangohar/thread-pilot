@@ -5,10 +5,9 @@ A modern microservices-based .NET 9.0 application demonstrating clean architectu
 ## 🏗️ Architecture & Design Decisions
 
 ### Clean Architecture
-The solution follows **Clean Architecture** principles with clear separation of concerns:
+The solution follows **Clean Architecture** principles with clear separation of concerns across three layers:
 
-- **Domain Layer**: Contains entities, value objects, enums, and repository interfaces
-- **Application Layer**: Implements business logic, queries, commands, and application services using MediatR
+- **Core Layer**: Combines domain and application concerns including entities, value objects, business logic, queries, commands, and repository interfaces
 - **Infrastructure Layer**: Handles data persistence, external service integrations, and technical concerns
 - **API Layer**: Exposes REST endpoints using FastEndpoints with built-in validation and documentation
 
@@ -300,10 +299,9 @@ mockValidator.Setup(v => v.ValidateAsync(It.IsAny<GetPersonInsurancesRequest>(),
 - **Interface Segregation**: Well-defined contracts between layers
 
 ### Adding New Features
-1. **Domain**: Define entities, value objects, and repository interfaces
-2. **Application**: Create queries/commands with MediatR handlers
-3. **Infrastructure**: Implement repository and external service integrations
-4. **API**: Add FastEndpoints with validation and documentation
+1. **Core Layer**: Define entities, value objects, queries/commands with MediatR handlers, and repository interfaces
+2. **Infrastructure Layer**: Implement repository and external service integrations
+3. **API Layer**: Add FastEndpoints with validation and documentation
 
 ### Configuration
 - Centralized package management with `Directory.Packages.props`
@@ -324,14 +322,47 @@ mockValidator.Setup(v => v.ValidateAsync(It.IsAny<GetPersonInsurancesRequest>(),
 ThreadPilot/
 ├── src/
 │   ├── Services/
-│   │   ├── Vehicle/           # Vehicle microservice
-│   │   └── Insurance/         # Insurance microservice
+│   │   ├── Vehicle/                    # Vehicle microservice
+│   │   │   ├── Vehicle.Api/            # API layer with endpoints
+│   │   │   ├── Vehicle.Core/           # Domain and application logic
+│   │   │   └── Vehicle.Infrastructure/ # Data access and external services
+│   │   └── Insurance/                  # Insurance microservice
+│   │       ├── Insurance.Api/          # API layer with endpoints
+│   │       ├── Insurance.Core/         # Domain and application logic
+│   │       └── Insurance.Infrastructure/ # Data access and external services
 │   └── Shared/
-│       └── ThreadPilot.Common/ # Shared utilities
-├── tests/                     # Test projects
-├── docker/                    # Docker configuration
-└── docker-compose.yml         # Service orchestration
+│       └── ThreadPilot.Common/         # Shared utilities and abstractions
+├── tests/                              # Test projects
+│   ├── Vehicle.Tests/
+│   │   ├── Vehicle.UnitTests/          # Unit tests for Vehicle service
+│   │   └── Vehicle.IntegrationTests/   # Integration tests for Vehicle API
+│   └── Insurance.Tests/
+│       ├── Insurance.UnitTests/        # Unit tests for Insurance service
+│       └── Insurance.IntegrationTests/ # Integration tests for Insurance API
+├── docker/                             # Docker configuration files
+│   ├── Vehicle.Api.Dockerfile          # Vehicle API Docker configuration
+│   └── Insurance.Api.Dockerfile        # Insurance API Docker configuration
+├── docker-compose.yml                  # Service orchestration
+├── ThreadPilot.sln                     # Solution file
+└── Directory.Packages.props            # Centralized package management
 ```
+
+### Layer Architecture
+Each service follows Clean Architecture principles with three distinct layers:
+
+- **Api Layer**: FastEndpoints-based REST API with validation, documentation, and HTTP concerns
+- **Core Layer**: Combined domain and application layer containing:
+  - **Entities**: Domain entities and business objects
+  - **ValueObjects**: Immutable value objects for domain modeling
+  - **Queries**: CQRS query handlers using MediatR pattern
+  - **Repositories**: Repository interfaces for data access abstractions
+  - **Interfaces**: Service contracts and abstractions
+  - **Mappings**: AutoMapper profiles for object transformations
+  - **Extensions**: Domain-specific extension methods
+- **Infrastructure Layer**: Data persistence, external service integrations, and technical implementations
+
+### Shared Components
+- **ThreadPilot.Common**: Contains shared abstractions like `IDateTimeProvider` and extension methods used across services
 
 ## Personal Reflection
 

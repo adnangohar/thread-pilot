@@ -1,7 +1,7 @@
 using System.Net;
 using System.Text.Json;
-using Insurance.Application.Interfaces;
-using Insurance.Contracts;
+using Insurance.Core.Common;
+using Insurance.Core.Interfaces;
 using Microsoft.Extensions.Logging;
 
 namespace Insurance.Infrastructure.Services;

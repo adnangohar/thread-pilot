@@ -1,8 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
 using FluentAssertions;
-using Insurance.Application.Interfaces;
-using Insurance.Contracts;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.FeatureManagement;
@@ -10,11 +8,13 @@ using Moq;
 using FluentValidation;
 using Insurance.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
-using Insurance.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using DomainInsuranceType = Insurance.Domain.Enums.InsuranceType;
-using Insurance.Application.Common;
+using DomainInsuranceType = Insurance.Core.Enums.InsuranceType;
 using System.Text.Json;
+using Insurance.Core.Interfaces;
+using Insurance.Api.Contracts;
+using Insurance.Core.Common;
+using Insurance.Core.ValueObjects;
 
 namespace Insurance.IntegrationTests;
 
@@ -143,7 +143,7 @@ public class InsuranceApiIntegrationTests : IClassFixture<WebApplicationFactory<
         content.Insurances.Should().HaveCount(3);
         content.TotalMonthlyCost.Should().Be(60m);
         
-        var carPolicy = content.Insurances.FirstOrDefault(x => x.Type == Insurance.Contracts.InsuranceType.Car);
+        var carPolicy = content.Insurances.FirstOrDefault(x => x.Type == DomainInsuranceType.Car);
         carPolicy.Should().NotBeNull();
         carPolicy!.VehicleInfo.Should().NotBeNull();
         carPolicy.VehicleInfo!.Make.Should().Be("Toyota");
@@ -215,7 +215,7 @@ public class InsuranceApiIntegrationTests : IClassFixture<WebApplicationFactory<
         content.Should().NotBeNull();
         content!.Insurances.Should().HaveCount(1);
         
-        var carPolicy = content.Insurances.FirstOrDefault(x => x.Type == Insurance.Contracts.InsuranceType.Car);
+        var carPolicy = content.Insurances.FirstOrDefault(x => x.Type == DomainInsuranceType.Car);
         carPolicy.Should().NotBeNull();
         carPolicy!.VehicleInfo.Should().BeNull(); // Vehicle info not available
     }
@@ -245,7 +245,7 @@ public class InsuranceApiIntegrationTests : IClassFixture<WebApplicationFactory<
         content.Insurances.Should().HaveCount(3);
         
         // Verify that car insurance does NOT have vehicle info when feature is disabled
-        var carPolicy = content.Insurances.FirstOrDefault(x => x.Type == Insurance.Contracts.InsuranceType.Car);
+        var carPolicy = content.Insurances.FirstOrDefault(x => x.Type == DomainInsuranceType.Car);
         carPolicy.Should().NotBeNull();
         carPolicy!.VehicleInfo.Should().BeNull();
         
@@ -292,7 +292,7 @@ public class InsuranceApiIntegrationTests : IClassFixture<WebApplicationFactory<
         content.Insurances.Should().HaveCount(1);
         
         // Verify that car insurance HAS vehicle info when feature is enabled
-        var carPolicy = content.Insurances.FirstOrDefault(x => x.Type == Insurance.Contracts.InsuranceType.Car);
+        var carPolicy = content.Insurances.FirstOrDefault(x => x.Type == DomainInsuranceType.Car);
         carPolicy.Should().NotBeNull();
         carPolicy!.VehicleInfo.Should().NotBeNull();
         carPolicy.VehicleInfo!.Make.Should().Be("Toyota");
@@ -317,13 +317,13 @@ public class InsuranceApiIntegrationTests : IClassFixture<WebApplicationFactory<
         var person2 = new PersonalIdentificationNumber("19990822-4984");
         var person3 = new PersonalIdentificationNumber("19900906-3356");
         
-        var insurances = new Insurance.Domain.Entities.Insurance[]
+        var insurances = new Insurance.Core.Entities.Insurance[]
         {
-            new Insurance.Domain.Entities.Insurance(person1, 20m, DomainInsuranceType.PersonalHealth),
-            new Insurance.Domain.Entities.Insurance(person1, 15m, DomainInsuranceType.Pet),
-            new Insurance.Domain.Entities.Insurance(person1, 25m, DomainInsuranceType.Car, "CAR123"),
-            new Insurance.Domain.Entities.Insurance(person2, 30m, DomainInsuranceType.Car, "CAR456"),
-            new Insurance.Domain.Entities.Insurance(person3, 30m, DomainInsuranceType.Car, "CAR789")
+            new Insurance.Core.Entities.Insurance(person1, 20m, DomainInsuranceType.PersonalHealth),
+            new Insurance.Core.Entities.Insurance(person1, 15m, DomainInsuranceType.Pet),
+            new Insurance.Core.Entities.Insurance(person1, 25m, DomainInsuranceType.Car, "CAR123"),
+            new Insurance.Core.Entities.Insurance(person2, 30m, DomainInsuranceType.Car, "CAR456"),
+            new Insurance.Core.Entities.Insurance(person3, 30m, DomainInsuranceType.Car, "CAR789")
         };
         
         context.Insurances.AddRange(insurances);

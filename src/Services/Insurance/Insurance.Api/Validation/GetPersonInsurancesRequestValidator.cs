@@ -1,6 +1,6 @@
 using ActiveLogin.Identity.Swedish;
 using FluentValidation;
-using Insurance.Contracts;
+using Insurance.Api.Contracts;
 
 namespace Insurance.Api.Validation;
 

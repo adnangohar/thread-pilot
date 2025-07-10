@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Vehicle.Domain.Repositories;
+using Vehicle.Core.Repositories;
 using Vehicle.Infrastructure.Persistence;
 using Vehicle.Infrastructure.Repositories;
 

@@ -1,10 +1,10 @@
-using Insurance.Application.Queries.GetPersonInsurances;
-using Insurance.Contracts;
 using MediatR;
 using Microsoft.AspNetCore.Http.HttpResults;
 using ProblemDetails = FastEndpoints.ProblemDetails;
 using FluentValidation;
-using Insurance.Application.Common;
+using Insurance.Api.Contracts;
+using Insurance.Core.Common;
+using Insurance.Core.Queries.GetPersonInsurances;
 
 namespace Insurance.Api.Endpoints;
 

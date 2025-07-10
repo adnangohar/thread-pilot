@@ -1,8 +1,8 @@
-using AutoMapper;
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Vehicle.Core.Common;
+using Vehicle.Core.Extensions;
 using Vehicle.Core.Repositories;
 using Vehicle.Core.ValueObjects;
 
@@ -11,14 +11,12 @@ namespace Vehicle.Core.Queries.GetVehicle;
 public class GetVehicleByRegistrationNumberQueryHandler : IRequestHandler<GetVehicleByRegistrationNumberQuery, VehicleResult?>
 {
     private readonly IVehicleRepository _vehicleRepository;
-    private readonly IMapper _mapper;
     private readonly IValidator<GetVehicleByRegistrationNumberQuery> _validator;
     private readonly ILogger<GetVehicleByRegistrationNumberQueryHandler> _logger;
 
-    public GetVehicleByRegistrationNumberQueryHandler(IVehicleRepository vehicleRepository, IMapper mapper, IValidator<GetVehicleByRegistrationNumberQuery> validator, ILogger<GetVehicleByRegistrationNumberQueryHandler> logger)
+    public GetVehicleByRegistrationNumberQueryHandler(IVehicleRepository vehicleRepository, IValidator<GetVehicleByRegistrationNumberQuery> validator, ILogger<GetVehicleByRegistrationNumberQueryHandler> logger)
     {
         _vehicleRepository = vehicleRepository ?? throw new ArgumentNullException(nameof(vehicleRepository));
-        _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         _validator = validator;
         _logger = logger;
     }
@@ -38,7 +36,7 @@ public class GetVehicleByRegistrationNumberQueryHandler : IRequestHandler<GetVeh
             var regNumber = new RegistrationNumber(request.RegistrationNumber);
             var vehicle = await _vehicleRepository.GetByRegistrationNumberAsync(regNumber.Value, cancellationToken);
 
-            return vehicle == null ? null : _mapper.Map<VehicleResult>(vehicle);
+            return vehicle?.ToResult();
         }
         catch (Exception)
         {

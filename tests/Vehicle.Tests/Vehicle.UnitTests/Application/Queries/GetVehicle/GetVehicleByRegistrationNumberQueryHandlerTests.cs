@@ -1,4 +1,3 @@
-using AutoMapper;
 using FluentAssertions;
 using FluentValidation;
 using FluentValidation.Results;
@@ -14,7 +13,6 @@ namespace Vehicle.UnitTests.Application.Queries.GetVehicle;
 public class GetVehicleByRegistrationNumberQueryHandlerTests
 {
     private readonly Mock<IVehicleRepository> _vehicleRepositoryMock;
-    private readonly Mock<IMapper> _mapperMock;
     private readonly Mock<IValidator<GetVehicleByRegistrationNumberQuery>> _validatorMock;
     private readonly Mock<ILogger<GetVehicleByRegistrationNumberQueryHandler>> _loggerMock;
     private readonly GetVehicleByRegistrationNumberQueryHandler _handler;
@@ -23,10 +21,9 @@ public class GetVehicleByRegistrationNumberQueryHandlerTests
     public GetVehicleByRegistrationNumberQueryHandlerTests()
     {
         _vehicleRepositoryMock = new Mock<IVehicleRepository>();
-        _mapperMock = new Mock<IMapper>();
         _validatorMock = new Mock<IValidator<GetVehicleByRegistrationNumberQuery>>();
         _loggerMock = new Mock<ILogger<GetVehicleByRegistrationNumberQueryHandler>>();
-        _handler = new GetVehicleByRegistrationNumberQueryHandler(_vehicleRepositoryMock.Object, _mapperMock.Object, _validatorMock.Object, _loggerMock.Object);
+        _handler = new GetVehicleByRegistrationNumberQueryHandler(_vehicleRepositoryMock.Object, _validatorMock.Object, _loggerMock.Object);
     }
 
     [Fact]
@@ -45,14 +42,6 @@ public class GetVehicleByRegistrationNumberQueryHandlerTests
             color: "Blue"
         );
 
-        var expectedResult = new VehicleResult(
-            RegistrationNumber: registrationNumber,
-            Make: "Toyota",
-            Model: "Camry",
-            Year: 2020,
-            Color: "Blue"
-        );
-
         _validatorMock
             .Setup(v => v.ValidateAsync(It.IsAny<GetVehicleByRegistrationNumberQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
@@ -61,19 +50,18 @@ public class GetVehicleByRegistrationNumberQueryHandlerTests
             .Setup(r => r.GetByRegistrationNumberAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(vehicle);
 
-        _mapperMock
-            .Setup(m => m.Map<VehicleResult>(vehicle))
-            .Returns(expectedResult);
-
         // Act
         var result = await _handler.Handle(query, cancellationToken);
 
         // Assert
         result.Should().NotBeNull();
-        result.Should().BeEquivalentTo(expectedResult);
+        result!.RegistrationNumber.Should().Be(registrationNumber);
+        result.Make.Should().Be("Toyota");
+        result.Model.Should().Be("Camry");
+        result.Year.Should().Be(2020);
+        result.Color.Should().Be("Blue");
 
         _vehicleRepositoryMock.Verify(r => r.GetByRegistrationNumberAsync(It.Is<string>(rn => rn == registrationNumber), It.IsAny<CancellationToken>()), Times.Once);
-        _mapperMock.Verify(m => m.Map<VehicleResult>(vehicle), Times.Once);
     }
 
     [Fact]
@@ -100,7 +88,6 @@ public class GetVehicleByRegistrationNumberQueryHandlerTests
 
         _vehicleRepositoryMock.Verify(r => r.GetByRegistrationNumberAsync(
             It.Is<string>(rn => rn == registrationNumber), It.IsAny<CancellationToken>()), Times.Once);
-        _mapperMock.Verify(m => m.Map<VehicleResult>(It.IsAny<Core.Entities.Vehicle>()), Times.Never);
     }
 
     [Fact]
@@ -129,6 +116,5 @@ public class GetVehicleByRegistrationNumberQueryHandlerTests
 
         // Verify that repository was never called due to invalid format
         _vehicleRepositoryMock.Verify(r => r.GetByRegistrationNumberAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
-        _mapperMock.Verify(m => m.Map<VehicleResult>(It.IsAny<Core.Entities.Vehicle>()), Times.Never);
     }
 }

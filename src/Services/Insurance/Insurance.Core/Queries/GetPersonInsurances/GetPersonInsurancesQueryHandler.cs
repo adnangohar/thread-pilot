@@ -1,9 +1,9 @@
 using MediatR;
-using AutoMapper;
 using Insurance.Core.Common;
 using Insurance.Core.Repositories;
 using Insurance.Core.ValueObjects;
 using Insurance.Core.Interfaces;
+using Insurance.Core.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.FeatureManagement;
 
@@ -15,7 +15,6 @@ public class GetPersonInsurancesQueryHandler : IRequestHandler<GetPersonInsuranc
     private readonly IFeatureManager _featureManager;
 
     private readonly IVehicleService _vehicleService;
-    private readonly IMapper _mapper;
     private ILogger<GetPersonInsurancesQueryHandler> _logger;
 
     public const string EnableDetailedVehicleInfo = "EnableDetailedVehicleInfo";
@@ -23,13 +22,11 @@ public class GetPersonInsurancesQueryHandler : IRequestHandler<GetPersonInsuranc
     public GetPersonInsurancesQueryHandler(
         IInsuranceRepository insuranceRepository,
         IVehicleService vehicleService,
-        IMapper mapper,
         ILogger<GetPersonInsurancesQueryHandler> logger,
         IFeatureManager featureManager)
     {
         _insuranceRepository = insuranceRepository ?? throw new ArgumentNullException(nameof(insuranceRepository));
         _vehicleService = vehicleService ?? throw new ArgumentNullException(nameof(vehicleService));
-        _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         _logger = logger;
         _featureManager = featureManager;
     }
@@ -61,7 +58,7 @@ public class GetPersonInsurancesQueryHandler : IRequestHandler<GetPersonInsuranc
 
             foreach (var insurance in insurances)
             {
-                var insuranceResponse = _mapper.Map<InsuranceResponse>(insurance);
+                var insuranceResponse = insurance.ToResponse();
                 
                 // If it's car insurance, fetch vehicle details
                 if (insurance.Type == Insurance.Core.Enums.InsuranceType.Car && !string.IsNullOrEmpty(insurance.VehicleRegistrationNumber))

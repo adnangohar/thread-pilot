@@ -10,7 +10,6 @@
 		<PackageReference Include="MediatR" />
 		<PackageReference Include="FluentValidation" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
-		<PackageReference Include="AutoMapper" />
     	<PackageReference Include="MediatR.Extensions.FluentValidation.AspNetCore" />
 	</ItemGroup>
 

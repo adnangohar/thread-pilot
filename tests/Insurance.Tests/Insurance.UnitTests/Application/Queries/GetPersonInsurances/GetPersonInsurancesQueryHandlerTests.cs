@@ -1,4 +1,3 @@
-using AutoMapper;
 using FluentAssertions;
 using Insurance.Core.Common;
 using Insurance.Core.Interfaces;
@@ -16,7 +15,6 @@ public class GetPersonInsurancesQueryHandlerTests
 {
     private readonly Mock<IInsuranceRepository> _mockInsuranceRepository;
     private readonly Mock<IVehicleService> _mockVehicleService;
-    private readonly Mock<IMapper> _mockMapper;
     private readonly Mock<IFeatureManager> _mockFeatureManager;
     private readonly Mock<ILogger<GetPersonInsurancesQueryHandler>> _mockLogger;
     private readonly GetPersonInsurancesQueryHandler _handler;
@@ -26,13 +24,11 @@ public class GetPersonInsurancesQueryHandlerTests
     {
         _mockInsuranceRepository = new Mock<IInsuranceRepository>();
         _mockVehicleService = new Mock<IVehicleService>();
-        _mockMapper = new Mock<IMapper>();
         _mockFeatureManager = new Mock<IFeatureManager>();
         _mockLogger = new Mock<ILogger<GetPersonInsurancesQueryHandler>>();
         _handler = new GetPersonInsurancesQueryHandler(
             _mockInsuranceRepository.Object,
             _mockVehicleService.Object,
-            _mockMapper.Object,
             _mockLogger.Object,
             _mockFeatureManager.Object);
     }
@@ -78,12 +74,6 @@ public class GetPersonInsurancesQueryHandlerTests
         
         var insurances = new List<Core.Entities.Insurance> { carInsurance };
 
-        var insuranceResponse = new InsuranceResponse
-        {
-            MonthlyCost = 30m,
-            Type = DomainInsuranceType.Car
-        };
-
         var vehicleResponse = new VehicleResponse
         {
             RegistrationNumber = regNumber,
@@ -94,10 +84,6 @@ public class GetPersonInsurancesQueryHandlerTests
         _mockInsuranceRepository
             .Setup(x => x.GetByPersonalIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(insurances);
-
-        _mockMapper
-            .Setup(x => x.Map<InsuranceResponse>(It.IsAny<Core.Entities.Insurance>()))
-            .Returns(insuranceResponse);
 
         _mockVehicleService
             .Setup(x => x.GetVehicleInfoAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
@@ -137,25 +123,9 @@ public class GetPersonInsurancesQueryHandlerTests
 
         var insurances = new List<Core.Entities.Insurance> { carInsurance, petInsurance, healthInsurance };
 
-        var carInsuranceResponse = new InsuranceResponse { Type = DomainInsuranceType.Car, MonthlyCost = 30m };
-        var petInsuranceResponse = new InsuranceResponse { Type = DomainInsuranceType.Pet, MonthlyCost = 10m };
-        var healthInsuranceResponse = new InsuranceResponse {  Type = DomainInsuranceType.PersonalHealth, MonthlyCost = 20m };
-
         _mockInsuranceRepository
             .Setup(x => x.GetByPersonalIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(insurances);
-
-        _mockMapper
-            .Setup(x => x.Map<InsuranceResponse>(carInsurance))
-            .Returns(carInsuranceResponse);
-
-        _mockMapper
-            .Setup(x => x.Map<InsuranceResponse>(petInsurance))
-            .Returns(petInsuranceResponse);
-
-        _mockMapper
-            .Setup(x => x.Map<InsuranceResponse>(healthInsurance))
-            .Returns(healthInsuranceResponse);
 
         _mockVehicleService
             .Setup(x => x.GetVehicleInfoAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
@@ -190,19 +160,9 @@ public class GetPersonInsurancesQueryHandlerTests
         
         var insurances = new List<Core.Entities.Insurance> { carInsurance };
 
-        var insuranceResponse = new InsuranceResponse
-        {
-            Type = DomainInsuranceType.Car,
-            MonthlyCost = 30m
-        };
-
         _mockInsuranceRepository
             .Setup(x => x.GetByPersonalIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(insurances);
-
-        _mockMapper
-            .Setup(x => x.Map<InsuranceResponse>(It.IsAny<Core.Entities.Insurance>()))
-            .Returns(insuranceResponse);
 
         _mockVehicleService
             .Setup(x => x.GetVehicleInfoAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
@@ -257,19 +217,9 @@ public class GetPersonInsurancesQueryHandlerTests
         
         var insurances = new List<Core.Entities.Insurance> { carInsurance };
 
-        var insuranceResponse = new InsuranceResponse
-        {
-            MonthlyCost = 30m,
-            Type = DomainInsuranceType.Car
-        };
-
         _mockInsuranceRepository
             .Setup(x => x.GetByPersonalIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(insurances);
-
-        _mockMapper
-            .Setup(x => x.Map<InsuranceResponse>(It.IsAny<Core.Entities.Insurance>()))
-            .Returns(insuranceResponse);
 
         _mockFeatureManager
             .Setup(x => x.IsEnabledAsync(EnableDetailedVehicleInfo, It.IsAny<CancellationToken>()))
@@ -303,12 +253,6 @@ public class GetPersonInsurancesQueryHandlerTests
         
         var insurances = new List<Core.Entities.Insurance> { carInsurance };
 
-        var insuranceResponse = new InsuranceResponse
-        {
-            MonthlyCost = 30m,
-            Type = DomainInsuranceType.Car
-        };
-
         var vehicleResponse = new VehicleResponse
         {
             RegistrationNumber = regNumber,
@@ -321,10 +265,6 @@ public class GetPersonInsurancesQueryHandlerTests
         _mockInsuranceRepository
             .Setup(x => x.GetByPersonalIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(insurances);
-
-        _mockMapper
-            .Setup(x => x.Map<InsuranceResponse>(It.IsAny<Core.Entities.Insurance>()))
-            .Returns(insuranceResponse);
 
         _mockVehicleService
             .Setup(x => x.GetVehicleInfoAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))

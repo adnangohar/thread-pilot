@@ -109,7 +109,6 @@ public class GetVehicleV2Endpoint : Endpoint<GetVehicleRequest, VehicleResponseV
 ### Patterns & Libraries
 - **MediatR** - Mediator pattern implementation for CQRS
 - **FluentValidation** - Type-safe validation rules
-- **AutoMapper** - Object-to-object mapping
 - **Serilog** - Structured logging framework
 
 ### Feature Flags
@@ -357,8 +356,7 @@ Each service follows Clean Architecture principles with three distinct layers:
   - **Queries**: CQRS query handlers using MediatR pattern
   - **Repositories**: Repository interfaces for data access abstractions
   - **Interfaces**: Service contracts and abstractions
-  - **Mappings**: AutoMapper profiles for object transformations
-  - **Extensions**: Domain-specific extension methods
+  - **Extensions**: Domain-specific extension methods and manual mapping utilities
 - **Infrastructure Layer**: Data persistence, external service integrations, and technical implementations
 
 ### Shared Components

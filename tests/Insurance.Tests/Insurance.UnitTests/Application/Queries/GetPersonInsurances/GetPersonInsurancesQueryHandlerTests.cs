@@ -1,4 +1,6 @@
 using FluentAssertions;
+using FluentValidation;
+using FluentValidation.Results;
 using Insurance.Core.Common;
 using Insurance.Core.Interfaces;
 using Insurance.Core.Queries.GetPersonInsurances;
@@ -16,6 +18,7 @@ public class GetPersonInsurancesQueryHandlerTests
     private readonly Mock<IInsuranceRepository> _mockInsuranceRepository;
     private readonly Mock<IVehicleService> _mockVehicleService;
     private readonly Mock<IFeatureManager> _mockFeatureManager;
+    private readonly Mock<IValidator<GetPersonInsurancesQuery>> _mockValidator;
     private readonly Mock<ILogger<GetPersonInsurancesQueryHandler>> _mockLogger;
     private readonly GetPersonInsurancesQueryHandler _handler;
     public const string EnableDetailedVehicleInfo = "EnableDetailedVehicleInfo";
@@ -25,12 +28,21 @@ public class GetPersonInsurancesQueryHandlerTests
         _mockInsuranceRepository = new Mock<IInsuranceRepository>();
         _mockVehicleService = new Mock<IVehicleService>();
         _mockFeatureManager = new Mock<IFeatureManager>();
+        _mockValidator = new Mock<IValidator<GetPersonInsurancesQuery>>();
         _mockLogger = new Mock<ILogger<GetPersonInsurancesQueryHandler>>();
         _handler = new GetPersonInsurancesQueryHandler(
             _mockInsuranceRepository.Object,
             _mockVehicleService.Object,
+            _mockValidator.Object,
             _mockLogger.Object,
             _mockFeatureManager.Object);
+    }
+
+    private void SetupValidValidation()
+    {
+        _mockValidator
+            .Setup(x => x.ValidateAsync(It.IsAny<GetPersonInsurancesQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ValidationResult());
     }
 
     [Fact]
@@ -41,6 +53,8 @@ public class GetPersonInsurancesQueryHandlerTests
         var query = new GetPersonInsurancesQuery(pin);
         var personalId = new PersonalIdentificationNumber(pin);
         var emptyInsurances = new List<Core.Entities.Insurance>();
+
+        SetupValidValidation();
 
         _mockInsuranceRepository
             .Setup(x => x.GetByPersonalIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
@@ -80,6 +94,8 @@ public class GetPersonInsurancesQueryHandlerTests
             Make = "Toyota",
             Model = "Camry"
         };
+
+        SetupValidValidation();
 
         _mockInsuranceRepository
             .Setup(x => x.GetByPersonalIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
@@ -123,6 +139,8 @@ public class GetPersonInsurancesQueryHandlerTests
 
         var insurances = new List<Core.Entities.Insurance> { carInsurance, petInsurance, healthInsurance };
 
+        SetupValidValidation();
+
         _mockInsuranceRepository
             .Setup(x => x.GetByPersonalIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(insurances);
@@ -151,14 +169,16 @@ public class GetPersonInsurancesQueryHandlerTests
     public async Task Handle_WhenVehicleServiceThrowsException_ShouldStillReturnCarInsurance()
     {
         // Arrange
-        var pinValue = TestDataBuilder.GenerateSwedishPin();
+        var pin = TestDataBuilder.GenerateSwedishPin();
         var regNumber = TestDataBuilder.GenerateCarRegNumber();
-        var query = new GetPersonInsurancesQuery(pinValue);
-        var pin = new PersonalIdentificationNumber(pinValue);
         
-        var carInsurance = new Core.Entities.Insurance(pin, 30m, DomainInsuranceType.Car, regNumber);
+        var query = new GetPersonInsurancesQuery(pin);
+        var personalId = new PersonalIdentificationNumber(pin);
+        var carInsurance = new Core.Entities.Insurance(personalId, 30m, DomainInsuranceType.Car, regNumber);
         
         var insurances = new List<Core.Entities.Insurance> { carInsurance };
+
+        SetupValidValidation();
 
         _mockInsuranceRepository
             .Setup(x => x.GetByPersonalIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
@@ -189,6 +209,8 @@ public class GetPersonInsurancesQueryHandlerTests
         var pinValue = TestDataBuilder.GenerateSwedishPin();
         var query = new GetPersonInsurancesQuery(pinValue);
 
+        SetupValidValidation();
+
         _mockInsuranceRepository
             .Setup(x => x.GetByPersonalIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new Exception("Database error"));
@@ -216,6 +238,8 @@ public class GetPersonInsurancesQueryHandlerTests
         var carInsurance = new Core.Entities.Insurance(personalId, 30m, DomainInsuranceType.Car, regNumber);
         
         var insurances = new List<Core.Entities.Insurance> { carInsurance };
+
+        SetupValidValidation();
 
         _mockInsuranceRepository
             .Setup(x => x.GetByPersonalIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
@@ -262,6 +286,8 @@ public class GetPersonInsurancesQueryHandlerTests
             Color = "Blue"
         };
 
+        SetupValidValidation();
+
         _mockInsuranceRepository
             .Setup(x => x.GetByPersonalIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(insurances);
@@ -290,5 +316,31 @@ public class GetPersonInsurancesQueryHandlerTests
         
         // Verify that vehicle service WAS called
         _mockVehicleService.Verify(x => x.GetVehicleInfoAsync(regNumber, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task Handle_WhenValidationFails_ShouldReturnNull()
+    {
+        // Arrange
+        var pin = "invalid-pin";
+        var query = new GetPersonInsurancesQuery(pin);
+        var validationFailures = new List<ValidationFailure> 
+        { 
+            new ValidationFailure("PersonalIdentificationNumber", "Personal identification number is invalid.") 
+        };
+        var validationResult = new ValidationResult(validationFailures);
+
+        _mockValidator
+            .Setup(x => x.ValidateAsync(It.IsAny<GetPersonInsurancesQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(validationResult);
+
+        // Act
+        var result = await _handler.Handle(query, CancellationToken.None);
+
+        // Assert
+        result.Should().BeNull();
+        
+        // Verify that repository was NOT called
+        _mockInsuranceRepository.Verify(x => x.GetByPersonalIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 }

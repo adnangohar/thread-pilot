@@ -1,4 +1,4 @@
-using MediatR;
+using FluentValidation;
 using Insurance.Core.Common;
 using Insurance.Core.Repositories;
 using Insurance.Core.ValueObjects;
@@ -9,32 +9,42 @@ using Microsoft.FeatureManagement;
 
 namespace Insurance.Core.Queries.GetPersonInsurances;
 
-public class GetPersonInsurancesQueryHandler : IRequestHandler<GetPersonInsurancesQuery, PersonInsurancesResult?>
+public class GetPersonInsurancesQueryHandler : IGetPersonInsurancesQueryHandler
 {
     private readonly IInsuranceRepository _insuranceRepository;
     private readonly IFeatureManager _featureManager;
-
     private readonly IVehicleService _vehicleService;
-    private ILogger<GetPersonInsurancesQueryHandler> _logger;
+    private readonly IValidator<GetPersonInsurancesQuery> _validator;
+    private readonly ILogger<GetPersonInsurancesQueryHandler> _logger;
 
     public const string EnableDetailedVehicleInfo = "EnableDetailedVehicleInfo";
 
     public GetPersonInsurancesQueryHandler(
         IInsuranceRepository insuranceRepository,
         IVehicleService vehicleService,
+        IValidator<GetPersonInsurancesQuery> validator,
         ILogger<GetPersonInsurancesQueryHandler> logger,
         IFeatureManager featureManager)
     {
         _insuranceRepository = insuranceRepository ?? throw new ArgumentNullException(nameof(insuranceRepository));
         _vehicleService = vehicleService ?? throw new ArgumentNullException(nameof(vehicleService));
-        _logger = logger;
-        _featureManager = featureManager;
+        _validator = validator ?? throw new ArgumentNullException(nameof(validator));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _featureManager = featureManager ?? throw new ArgumentNullException(nameof(featureManager));
     }
 
     public async Task<PersonInsurancesResult?> Handle(GetPersonInsurancesQuery request, CancellationToken cancellationToken)
     {
         try
         {
+            // Validate the request
+            var validationResult = await _validator.ValidateAsync(request, cancellationToken);
+            if (!validationResult.IsValid)
+            {
+                _logger.LogWarning("Validation failed for GetPersonInsurancesQuery: {Errors}", validationResult.Errors);
+                return null;
+            }
+
             var pin = new PersonalIdentificationNumber(request.PersonalIdentificationNumber);
             var insurances = await _insuranceRepository.GetByPersonalIdAsync(pin, cancellationToken);
             var insurancesList = insurances.ToList();

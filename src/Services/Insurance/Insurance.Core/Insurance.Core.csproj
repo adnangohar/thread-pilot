@@ -8,8 +8,6 @@
 
   <ItemGroup>
     <PackageReference Include="FluentValidation" />
-    <PackageReference Include="MediatR" />
-    <PackageReference Include="MediatR.Extensions.FluentValidation.AspNetCore" />
     <PackageReference Include="ActiveLogin.Identity.Swedish" />
     <PackageReference Include="Microsoft.FeatureManagement.AspNetCore" />
   </ItemGroup>

@@ -1,5 +1,4 @@
 using Insurance.Core.Common;
-using Insurance.Core.Entities;
 
 namespace Insurance.Core.Extensions;
 

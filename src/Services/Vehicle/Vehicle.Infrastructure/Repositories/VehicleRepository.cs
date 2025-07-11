@@ -10,7 +10,7 @@ public class VehicleRepository : IVehicleRepository
 
     public VehicleRepository(VehicleDbContext context)
     {
-        _context = context;
+        _context = context ?? throw new ArgumentNullException(nameof(context));
     }
 
     public async Task AddAsync(Core.Entities.Vehicle vehicle, CancellationToken cancellationToken = default)

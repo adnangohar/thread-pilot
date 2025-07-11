@@ -11,10 +11,57 @@ The solution follows **Clean Architecture** principles with clear separation of 
 - **Infrastructure Layer**: Handles data persistence, external service integrations, and technical concerns
 - **API Layer**: Exposes REST endpoints using FastEndpoints with built-in validation and documentation
 
-### CQRS Pattern with MediatR
-- **Command Query Responsibility Segregation (CQRS)** implemented using **MediatR**
+### CQRS Pattern with Custom Query Handlers
+- **Command Query Responsibility Segregation (CQRS)** implemented using custom query handler pattern
 - Separate query and command handlers for optimal performance and maintainability
+- Direct dependency injection of handlers without mediation overhead
 - Request/Response pattern with proper validation and error handling
+
+#### Query Handler Implementation
+The application uses a lightweight custom pattern instead of MediatR for handling queries:
+
+```csharp
+// Query record - simple data structure
+public record GetPersonInsurancesQuery(string PersonalIdentificationNumber);
+
+// Handler interface - defines the contract
+public interface IGetPersonInsurancesQueryHandler
+{
+    Task<PersonInsurancesResult?> Handle(GetPersonInsurancesQuery request, CancellationToken cancellationToken);
+}
+
+// Handler implementation - contains business logic
+public class GetPersonInsurancesQueryHandler : IGetPersonInsurancesQueryHandler
+{
+    private readonly IInsuranceRepository _repository;
+    private readonly IValidator<GetPersonInsurancesQuery> _validator;
+    
+    public async Task<PersonInsurancesResult?> Handle(GetPersonInsurancesQuery request, CancellationToken cancellationToken)
+    {
+        // Validation, business logic, and data access
+    }
+}
+
+// FastEndpoint integration - direct handler injection
+public class GetPersonInsurancesEndpoint : Endpoint<GetPersonInsurancesRequest, Results<Ok<PersonInsurancesResult>, NotFound>>
+{
+    private readonly IGetPersonInsurancesQueryHandler _handler;
+    
+    public override async Task ExecuteAsync(GetPersonInsurancesRequest req, CancellationToken ct)
+    {
+        var query = new GetPersonInsurancesQuery(req.PersonalIdentificationNumber);
+        var result = await _handler.Handle(query, ct);
+        // Return result
+    }
+}
+```
+
+**Benefits of Custom Handler Pattern:**
+- **Reduced Dependencies**: No external mediator library required
+- **Direct Control**: Full control over handler registration and execution
+- **Performance**: Eliminates mediation overhead and reflection-based dispatch
+- **Simplicity**: Straightforward dependency injection and testing
+- **Flexibility**: Easy to customize behavior without framework constraints
 
 ### Test-Driven Development (TDD)
 - Comprehensive unit tests for all business logic
@@ -107,7 +154,7 @@ public class GetVehicleV2Endpoint : Endpoint<GetVehicleRequest, VehicleResponseV
 ```
 
 ### Patterns & Libraries
-- **MediatR** - Mediator pattern implementation for CQRS
+- **Custom Query Handlers** - Direct handler pattern implementation for CQRS
 - **FluentValidation** - Type-safe validation rules
 - **Serilog** - Structured logging framework
 
@@ -298,7 +345,7 @@ mockValidator.Setup(v => v.ValidateAsync(It.IsAny<GetPersonInsurancesRequest>(),
 - **Interface Segregation**: Well-defined contracts between layers
 
 ### Adding New Features
-1. **Core Layer**: Define entities, value objects, queries/commands with MediatR handlers, and repository interfaces
+1. **Core Layer**: Define entities, value objects, queries/commands with custom handlers, and repository interfaces
 2. **Infrastructure Layer**: Implement repository and external service integrations
 3. **API Layer**: Add FastEndpoints with validation and documentation
 
@@ -353,7 +400,7 @@ Each service follows Clean Architecture principles with three distinct layers:
 - **Core Layer**: Combined domain and application layer containing:
   - **Entities**: Domain entities and business objects
   - **ValueObjects**: Immutable value objects for domain modeling
-  - **Queries**: CQRS query handlers using MediatR pattern
+  - **Queries**: CQRS query handlers using custom handler pattern
   - **Repositories**: Repository interfaces for data access abstractions
   - **Interfaces**: Service contracts and abstractions
   - **Extensions**: Domain-specific extension methods and manual mapping utilities

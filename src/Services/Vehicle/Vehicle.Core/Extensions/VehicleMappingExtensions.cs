@@ -1,5 +1,4 @@
 using Vehicle.Core.Common;
-using Vehicle.Core.Entities;
 
 namespace Vehicle.Core.Extensions;
 

@@ -1,5 +1,4 @@
 using FluentValidation;
-using MediatR;
 using Microsoft.Extensions.Logging;
 using Vehicle.Core.Common;
 using Vehicle.Core.Extensions;
@@ -8,7 +7,7 @@ using Vehicle.Core.ValueObjects;
 
 namespace Vehicle.Core.Queries.GetVehicle;
 
-public class GetVehicleByRegistrationNumberQueryHandler : IRequestHandler<GetVehicleByRegistrationNumberQuery, VehicleResult?>
+public class GetVehicleByRegistrationNumberQueryHandler : IGetVehicleByRegistrationNumberQueryHandler
 {
     private readonly IVehicleRepository _vehicleRepository;
     private readonly IValidator<GetVehicleByRegistrationNumberQuery> _validator;
@@ -17,8 +16,8 @@ public class GetVehicleByRegistrationNumberQueryHandler : IRequestHandler<GetVeh
     public GetVehicleByRegistrationNumberQueryHandler(IVehicleRepository vehicleRepository, IValidator<GetVehicleByRegistrationNumberQuery> validator, ILogger<GetVehicleByRegistrationNumberQueryHandler> logger)
     {
         _vehicleRepository = vehicleRepository ?? throw new ArgumentNullException(nameof(vehicleRepository));
-        _validator = validator;
-        _logger = logger;
+        _validator = validator ?? throw new ArgumentNullException(nameof(validator));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
     public async Task<VehicleResult?> Handle(GetVehicleByRegistrationNumberQuery request, CancellationToken cancellationToken)

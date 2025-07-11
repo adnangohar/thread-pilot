@@ -4,13 +4,13 @@ using InsuranceEntity = Insurance.Core.Entities.Insurance;
 
 namespace Insurance.Infrastructure.Repositories;
 
-public class InsuranceRepository : Insurance.Core.Repositories.IInsuranceRepository
+public class InsuranceRepository : Core.Repositories.IInsuranceRepository
 {
     private readonly InsuranceDbContext _context;
 
     public InsuranceRepository(InsuranceDbContext context)
     {
-        _context = context;
+        _context = context ?? throw new ArgumentNullException(nameof(context));
     }
     public async Task AddAsync(InsuranceEntity insurance, CancellationToken cancellationToken)
     {

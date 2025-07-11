@@ -3,7 +3,6 @@ using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.Extensions.Logging;
 using Moq;
-using Vehicle.Core.Common;
 using Vehicle.Core.Queries.GetVehicle;
 using Vehicle.Core.Repositories;
 using Vehicle.Core.ValueObjects;

@@ -1,6 +1,6 @@
-using System.Reflection;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
+using Insurance.Core.Queries.GetPersonInsurances;
 
 namespace Insurance.Core.Extensions;
 
@@ -9,11 +9,8 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
         // Register application services
-        services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
-        services.AddMediatR(cfg => {
-            cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
-        });
-        
+        services.AddScoped<IGetPersonInsurancesQueryHandler, GetPersonInsurancesQueryHandler>();
+        services.AddTransient<IValidator<GetPersonInsurancesQuery>, GetPersonInsurancesQueryValidator>();
         
         return services;
     }

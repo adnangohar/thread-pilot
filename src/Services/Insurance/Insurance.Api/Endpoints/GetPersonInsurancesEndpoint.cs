@@ -1,4 +1,3 @@
-using MediatR;
 using Microsoft.AspNetCore.Http.HttpResults;
 using ProblemDetails = FastEndpoints.ProblemDetails;
 using FluentValidation;
@@ -10,13 +9,13 @@ namespace Insurance.Api.Endpoints;
 
 public class GetPersonInsurancesEndpoint : Endpoint<GetPersonInsurancesRequest, Results<Ok<PersonInsurancesResult>, NotFound<ProblemDetails>, BadRequest<ProblemDetails>>>
 {
-    private readonly IMediator _mediator;
+    private readonly IGetPersonInsurancesQueryHandler _handler;
     private readonly IValidator<GetPersonInsurancesRequest> _validator;
 
-    public GetPersonInsurancesEndpoint(IMediator mediator, IValidator<GetPersonInsurancesRequest> validator)
+    public GetPersonInsurancesEndpoint(IGetPersonInsurancesQueryHandler handler, IValidator<GetPersonInsurancesRequest> validator)
     {
-        _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
-        _validator = validator;
+        _handler = handler ?? throw new ArgumentNullException(nameof(handler));
+        _validator = validator ?? throw new ArgumentNullException(nameof(validator));
     }
 
     public override void Configure()
@@ -50,7 +49,7 @@ public class GetPersonInsurancesEndpoint : Endpoint<GetPersonInsurancesRequest, 
         }
         
         var query = new GetPersonInsurancesQuery(req.PersonalIdentificationNumber);
-        var insurances = await _mediator.Send(query, cancellationToken);
+        var insurances = await _handler.Handle(query, cancellationToken);
 
         if (insurances == null)
         {

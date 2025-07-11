@@ -3,7 +3,7 @@ using Vehicle.Infrastructure.Persistence;
 using FastEndpoints.Swagger;
 using ThreadPilot.Common.Extensions;
 using Vehicle.Infrastructure.Extensions;
-using Vehicle.Application.Extensions;
+using Vehicle.Core.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,7 +20,7 @@ builder.Host.UseSerilog();
 builder.Services.AddCommonServices();
 
 // Add Application
-builder.Services.AddApplication();
+builder.Services.AddCore();
 
 // Add Infrastructure
 builder.Services.AddInfrastructure(builder.Configuration);

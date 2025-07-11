@@ -17,10 +17,8 @@ COPY ThreadPilot.sln ./
 
 # Copy all project files for proper dependency resolution
 COPY src/Services/Insurance/Insurance.Api/Insurance.Api.csproj ./src/Services/Insurance/Insurance.Api/
-COPY src/Services/Insurance/Insurance.Application/Insurance.Application.csproj ./src/Services/Insurance/Insurance.Application/
+COPY src/Services/Insurance/Insurance.Core/Insurance.Core.csproj ./src/Services/Insurance/Insurance.Core/
 COPY src/Services/Insurance/Insurance.Infrastructure/Insurance.Infrastructure.csproj ./src/Services/Insurance/Insurance.Infrastructure/
-COPY src/Services/Insurance/Insurance.Domain/Insurance.Domain.csproj ./src/Services/Insurance/Insurance.Domain/
-COPY src/Services/Insurance/Insurance.Contracts/Insurance.Contracts.csproj ./src/Services/Insurance/Insurance.Contracts/
 COPY src/Shared/ThreadPilot.Common/ThreadPilot.Common.csproj ./src/Shared/ThreadPilot.Common/
 
 # Clear NuGet cache and configure NuGet to avoid Windows-specific paths

@@ -17,10 +17,8 @@ COPY ThreadPilot.sln ./
 
 # Copy all project files for proper dependency resolution
 COPY src/Services/Vehicle/Vehicle.Api/Vehicle.Api.csproj ./src/Services/Vehicle/Vehicle.Api/
-COPY src/Services/Vehicle/Vehicle.Application/Vehicle.Application.csproj ./src/Services/Vehicle/Vehicle.Application/
+COPY src/Services/Vehicle/Vehicle.Core/Vehicle.Core.csproj ./src/Services/Vehicle/Vehicle.Core/
 COPY src/Services/Vehicle/Vehicle.Infrastructure/Vehicle.Infrastructure.csproj ./src/Services/Vehicle/Vehicle.Infrastructure/
-COPY src/Services/Vehicle/Vehicle.Domain/Vehicle.Domain.csproj ./src/Services/Vehicle/Vehicle.Domain/
-COPY src/Services/Vehicle/Vehicle.Contracts/Vehicle.Contracts.csproj ./src/Services/Vehicle/Vehicle.Contracts/
 COPY src/Shared/ThreadPilot.Common/ThreadPilot.Common.csproj ./src/Shared/ThreadPilot.Common/
 
 # Clear NuGet cache and configure NuGet to avoid Windows-specific paths

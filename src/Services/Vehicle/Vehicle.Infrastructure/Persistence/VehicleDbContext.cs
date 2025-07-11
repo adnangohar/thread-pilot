@@ -8,14 +8,14 @@ public class VehicleDbContext : DbContext
     {
     }
 
-    public DbSet<Domain.Entities.Vehicle> Vehicles { get; set; }
+    public DbSet<Core.Entities.Vehicle> Vehicles { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(VehicleDbContext).Assembly);
             
             // Seed data for testing
-            modelBuilder.Entity<Domain.Entities.Vehicle>().HasData(
+            modelBuilder.Entity<Core.Entities.Vehicle>().HasData(
                 new 
                 {
                     Id = Guid.Parse("33333333-3333-3333-3333-333333333333"),

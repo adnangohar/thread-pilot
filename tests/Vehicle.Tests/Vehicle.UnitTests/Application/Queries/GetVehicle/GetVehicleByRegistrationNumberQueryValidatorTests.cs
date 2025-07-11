@@ -1,5 +1,5 @@
 using FluentAssertions;
-using Vehicle.Application.Queries.GetVehicle;
+using Vehicle.Core.Queries.GetVehicle;
 
 namespace Vehicle.UnitTests.Application.Queries.GetVehicle;
 

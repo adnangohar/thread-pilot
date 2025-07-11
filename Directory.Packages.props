@@ -19,10 +19,7 @@
     <PackageVersion Include="Scalar.AspNetCore" Version="2.2.7" />
 
     <!-- Open-source packages -->
-    <PackageVersion Include="MediatR" Version="12.5.0" />
-    <PackageVersion Include="MediatR.Extensions.FluentValidation.AspNetCore" Version="6.0.0" />
     <PackageVersion Include="FluentValidation" Version="11.11.0" />
-    <PackageVersion Include="AutoMapper" Version="14.0.0" />
     <PackageVersion Include="Serilog.AspNetCore" Version="9.0.0" />
 
     <!-- Entity Framework -->

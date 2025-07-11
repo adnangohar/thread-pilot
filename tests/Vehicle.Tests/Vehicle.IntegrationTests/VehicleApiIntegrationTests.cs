@@ -5,8 +5,8 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using Vehicle.Infrastructure.Persistence;
-using Vehicle.Domain.ValueObjects;
-using Vehicle.Application.Common;
+using Vehicle.Core.ValueObjects;
+using Vehicle.Core.Common;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Vehicle.IntegrationTests;
@@ -118,21 +118,21 @@ public class VehicleApiIntegrationTests : IClassFixture<WebApplicationFactory<Pr
 
     private void SeedTestData(VehicleDbContext context)
     {
-        var vehicles = new Vehicle.Domain.Entities.Vehicle[]
+        var vehicles = new Vehicle.Core.Entities.Vehicle[]
         {
-            new Vehicle.Domain.Entities.Vehicle(
+            new Vehicle.Core.Entities.Vehicle(
                 new RegistrationNumber("ABD123"), 
                 "Toyota", 
                 "Camry", 
                 2023, 
                 "Blue"),
-            new Vehicle.Domain.Entities.Vehicle(
+            new Vehicle.Core.Entities.Vehicle(
                 new RegistrationNumber("DEF456"), 
                 "Honda", 
                 "Civic", 
                 2022, 
                 "Red"),
-            new Vehicle.Domain.Entities.Vehicle(
+            new Vehicle.Core.Entities.Vehicle(
                 new RegistrationNumber("GHI789"), 
                 "Ford", 
                 "Focus", 

@@ -1,15 +1,15 @@
-using AutoMapper;
 using FluentAssertions;
-using Insurance.Application.Interfaces;
-using Insurance.Application.Queries.GetPersonInsurances;
-using Insurance.Contracts;
-using Insurance.Domain.Repositories;
-using Insurance.Domain.ValueObjects;
+using FluentValidation;
+using FluentValidation.Results;
+using Insurance.Core.Common;
+using Insurance.Core.Interfaces;
+using Insurance.Core.Queries.GetPersonInsurances;
+using Insurance.Core.Repositories;
+using Insurance.Core.ValueObjects;
 using Microsoft.Extensions.Logging;
 using Microsoft.FeatureManagement;
 using Moq;
-using DomainInsuranceType = Insurance.Domain.Enums.InsuranceType;
-using ContractsInsuranceType = Insurance.Contracts.InsuranceType;
+using DomainInsuranceType = Insurance.Core.Enums.InsuranceType;
 
 namespace Insurance.UnitTests.Application.Queries.GetPersonInsurances;
 
@@ -17,8 +17,8 @@ public class GetPersonInsurancesQueryHandlerTests
 {
     private readonly Mock<IInsuranceRepository> _mockInsuranceRepository;
     private readonly Mock<IVehicleService> _mockVehicleService;
-    private readonly Mock<IMapper> _mockMapper;
     private readonly Mock<IFeatureManager> _mockFeatureManager;
+    private readonly Mock<IValidator<GetPersonInsurancesQuery>> _mockValidator;
     private readonly Mock<ILogger<GetPersonInsurancesQueryHandler>> _mockLogger;
     private readonly GetPersonInsurancesQueryHandler _handler;
     public const string EnableDetailedVehicleInfo = "EnableDetailedVehicleInfo";
@@ -27,15 +27,22 @@ public class GetPersonInsurancesQueryHandlerTests
     {
         _mockInsuranceRepository = new Mock<IInsuranceRepository>();
         _mockVehicleService = new Mock<IVehicleService>();
-        _mockMapper = new Mock<IMapper>();
         _mockFeatureManager = new Mock<IFeatureManager>();
+        _mockValidator = new Mock<IValidator<GetPersonInsurancesQuery>>();
         _mockLogger = new Mock<ILogger<GetPersonInsurancesQueryHandler>>();
         _handler = new GetPersonInsurancesQueryHandler(
             _mockInsuranceRepository.Object,
             _mockVehicleService.Object,
-            _mockMapper.Object,
+            _mockValidator.Object,
             _mockLogger.Object,
             _mockFeatureManager.Object);
+    }
+
+    private void SetupValidValidation()
+    {
+        _mockValidator
+            .Setup(x => x.ValidateAsync(It.IsAny<GetPersonInsurancesQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ValidationResult());
     }
 
     [Fact]
@@ -45,7 +52,9 @@ public class GetPersonInsurancesQueryHandlerTests
         var pin = TestDataBuilder.GenerateSwedishPin();
         var query = new GetPersonInsurancesQuery(pin);
         var personalId = new PersonalIdentificationNumber(pin);
-        var emptyInsurances = new List<Domain.Entities.Insurance>();
+        var emptyInsurances = new List<Core.Entities.Insurance>();
+
+        SetupValidValidation();
 
         _mockInsuranceRepository
             .Setup(x => x.GetByPersonalIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
@@ -75,15 +84,9 @@ public class GetPersonInsurancesQueryHandlerTests
         
         var query = new GetPersonInsurancesQuery(pin);
         var personalId = new PersonalIdentificationNumber(pin);
-        var carInsurance = new Domain.Entities.Insurance(personalId, 30m, DomainInsuranceType.Car, regNumber);
+        var carInsurance = new Core.Entities.Insurance(personalId, 30m, DomainInsuranceType.Car, regNumber);
         
-        var insurances = new List<Domain.Entities.Insurance> { carInsurance };
-
-        var insuranceResponse = new InsuranceResponse
-        {
-            MonthlyCost = 30m,
-            Type = ContractsInsuranceType.Car
-        };
+        var insurances = new List<Core.Entities.Insurance> { carInsurance };
 
         var vehicleResponse = new VehicleResponse
         {
@@ -92,13 +95,11 @@ public class GetPersonInsurancesQueryHandlerTests
             Model = "Camry"
         };
 
+        SetupValidValidation();
+
         _mockInsuranceRepository
             .Setup(x => x.GetByPersonalIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(insurances);
-
-        _mockMapper
-            .Setup(x => x.Map<InsuranceResponse>(It.IsAny<Domain.Entities.Insurance>()))
-            .Returns(insuranceResponse);
 
         _mockVehicleService
             .Setup(x => x.GetVehicleInfoAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
@@ -132,31 +133,17 @@ public class GetPersonInsurancesQueryHandlerTests
         var query = new GetPersonInsurancesQuery(pinValue);
         var pin = new PersonalIdentificationNumber(pinValue);
         
-        var carInsurance = new Domain.Entities.Insurance(pin, 30m, DomainInsuranceType.Car, regNumber);
-        var petInsurance = new Domain.Entities.Insurance(pin, 10m, DomainInsuranceType.Pet);
-        var healthInsurance = new Domain.Entities.Insurance(pin, 20m, DomainInsuranceType.PersonalHealth);
+        var carInsurance = new Core.Entities.Insurance(pin, 30m, DomainInsuranceType.Car, regNumber);
+        var petInsurance = new Core.Entities.Insurance(pin, 10m, DomainInsuranceType.Pet);
+        var healthInsurance = new Core.Entities.Insurance(pin, 20m, DomainInsuranceType.PersonalHealth);
 
-        var insurances = new List<Domain.Entities.Insurance> { carInsurance, petInsurance, healthInsurance };
+        var insurances = new List<Core.Entities.Insurance> { carInsurance, petInsurance, healthInsurance };
 
-        var carInsuranceResponse = new InsuranceResponse { Type = ContractsInsuranceType.Car, MonthlyCost = 30m };
-        var petInsuranceResponse = new InsuranceResponse { Type = ContractsInsuranceType.Pet, MonthlyCost = 10m };
-        var healthInsuranceResponse = new InsuranceResponse {  Type = ContractsInsuranceType.PersonalHealth, MonthlyCost = 20m };
+        SetupValidValidation();
 
         _mockInsuranceRepository
             .Setup(x => x.GetByPersonalIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(insurances);
-
-        _mockMapper
-            .Setup(x => x.Map<InsuranceResponse>(carInsurance))
-            .Returns(carInsuranceResponse);
-
-        _mockMapper
-            .Setup(x => x.Map<InsuranceResponse>(petInsurance))
-            .Returns(petInsuranceResponse);
-
-        _mockMapper
-            .Setup(x => x.Map<InsuranceResponse>(healthInsurance))
-            .Returns(healthInsuranceResponse);
 
         _mockVehicleService
             .Setup(x => x.GetVehicleInfoAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
@@ -173,37 +160,29 @@ public class GetPersonInsurancesQueryHandlerTests
         result.Should().NotBeNull();
         result!.Insurances.Should().HaveCount(3);
         result.TotalMonthlyCost.Should().Be(60m);
-        result.Insurances.Should().Contain(x => x.Type == ContractsInsuranceType.Car);
-        result.Insurances.Should().Contain(x => x.Type == ContractsInsuranceType.Pet);
-        result.Insurances.Should().Contain(x => x.Type == ContractsInsuranceType.PersonalHealth);
+        result.Insurances.Should().Contain(x => x.Type == DomainInsuranceType.Car);
+        result.Insurances.Should().Contain(x => x.Type == DomainInsuranceType.Pet);
+        result.Insurances.Should().Contain(x => x.Type == DomainInsuranceType.PersonalHealth);
     }
 
     [Fact]
     public async Task Handle_WhenVehicleServiceThrowsException_ShouldStillReturnCarInsurance()
     {
         // Arrange
-        var pinValue = TestDataBuilder.GenerateSwedishPin();
+        var pin = TestDataBuilder.GenerateSwedishPin();
         var regNumber = TestDataBuilder.GenerateCarRegNumber();
-        var query = new GetPersonInsurancesQuery(pinValue);
-        var pin = new PersonalIdentificationNumber(pinValue);
         
-        var carInsurance = new Domain.Entities.Insurance(pin, 30m, DomainInsuranceType.Car, regNumber);
+        var query = new GetPersonInsurancesQuery(pin);
+        var personalId = new PersonalIdentificationNumber(pin);
+        var carInsurance = new Core.Entities.Insurance(personalId, 30m, DomainInsuranceType.Car, regNumber);
         
-        var insurances = new List<Domain.Entities.Insurance> { carInsurance };
+        var insurances = new List<Core.Entities.Insurance> { carInsurance };
 
-        var insuranceResponse = new InsuranceResponse
-        {
-            Type = ContractsInsuranceType.Car,
-            MonthlyCost = 30m
-        };
+        SetupValidValidation();
 
         _mockInsuranceRepository
             .Setup(x => x.GetByPersonalIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(insurances);
-
-        _mockMapper
-            .Setup(x => x.Map<InsuranceResponse>(It.IsAny<Domain.Entities.Insurance>()))
-            .Returns(insuranceResponse);
 
         _mockVehicleService
             .Setup(x => x.GetVehicleInfoAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
@@ -230,6 +209,8 @@ public class GetPersonInsurancesQueryHandlerTests
         var pinValue = TestDataBuilder.GenerateSwedishPin();
         var query = new GetPersonInsurancesQuery(pinValue);
 
+        SetupValidValidation();
+
         _mockInsuranceRepository
             .Setup(x => x.GetByPersonalIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new Exception("Database error"));
@@ -254,23 +235,15 @@ public class GetPersonInsurancesQueryHandlerTests
         var regNumber = TestDataBuilder.GenerateCarRegNumber();
         var query = new GetPersonInsurancesQuery(pin);
         var personalId = new PersonalIdentificationNumber(pin);
-        var carInsurance = new Domain.Entities.Insurance(personalId, 30m, DomainInsuranceType.Car, regNumber);
+        var carInsurance = new Core.Entities.Insurance(personalId, 30m, DomainInsuranceType.Car, regNumber);
         
-        var insurances = new List<Domain.Entities.Insurance> { carInsurance };
+        var insurances = new List<Core.Entities.Insurance> { carInsurance };
 
-        var insuranceResponse = new InsuranceResponse
-        {
-            MonthlyCost = 30m,
-            Type = ContractsInsuranceType.Car
-        };
+        SetupValidValidation();
 
         _mockInsuranceRepository
             .Setup(x => x.GetByPersonalIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(insurances);
-
-        _mockMapper
-            .Setup(x => x.Map<InsuranceResponse>(It.IsAny<Domain.Entities.Insurance>()))
-            .Returns(insuranceResponse);
 
         _mockFeatureManager
             .Setup(x => x.IsEnabledAsync(EnableDetailedVehicleInfo, It.IsAny<CancellationToken>()))
@@ -300,15 +273,9 @@ public class GetPersonInsurancesQueryHandlerTests
         var regNumber = TestDataBuilder.GenerateCarRegNumber();
         var query = new GetPersonInsurancesQuery(pin);
         var personalId = new PersonalIdentificationNumber(pin);
-        var carInsurance = new Domain.Entities.Insurance(personalId, 30m, DomainInsuranceType.Car, regNumber);
+        var carInsurance = new Core.Entities.Insurance(personalId, 30m, DomainInsuranceType.Car, regNumber);
         
-        var insurances = new List<Domain.Entities.Insurance> { carInsurance };
-
-        var insuranceResponse = new InsuranceResponse
-        {
-            MonthlyCost = 30m,
-            Type = ContractsInsuranceType.Car
-        };
+        var insurances = new List<Core.Entities.Insurance> { carInsurance };
 
         var vehicleResponse = new VehicleResponse
         {
@@ -319,13 +286,11 @@ public class GetPersonInsurancesQueryHandlerTests
             Color = "Blue"
         };
 
+        SetupValidValidation();
+
         _mockInsuranceRepository
             .Setup(x => x.GetByPersonalIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(insurances);
-
-        _mockMapper
-            .Setup(x => x.Map<InsuranceResponse>(It.IsAny<Domain.Entities.Insurance>()))
-            .Returns(insuranceResponse);
 
         _mockVehicleService
             .Setup(x => x.GetVehicleInfoAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
@@ -351,5 +316,31 @@ public class GetPersonInsurancesQueryHandlerTests
         
         // Verify that vehicle service WAS called
         _mockVehicleService.Verify(x => x.GetVehicleInfoAsync(regNumber, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task Handle_WhenValidationFails_ShouldReturnNull()
+    {
+        // Arrange
+        var pin = "invalid-pin";
+        var query = new GetPersonInsurancesQuery(pin);
+        var validationFailures = new List<ValidationFailure> 
+        { 
+            new ValidationFailure("PersonalIdentificationNumber", "Personal identification number is invalid.") 
+        };
+        var validationResult = new ValidationResult(validationFailures);
+
+        _mockValidator
+            .Setup(x => x.ValidateAsync(It.IsAny<GetPersonInsurancesQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(validationResult);
+
+        // Act
+        var result = await _handler.Handle(query, CancellationToken.None);
+
+        // Assert
+        result.Should().BeNull();
+        
+        // Verify that repository was NOT called
+        _mockInsuranceRepository.Verify(x => x.GetByPersonalIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 }

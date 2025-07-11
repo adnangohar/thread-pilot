@@ -1,15 +1,14 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
 using ProblemDetails = FastEndpoints.ProblemDetails;
-using MediatR;
-using Vehicle.Application.Queries.GetVehicle;
+using Vehicle.Core.Queries.GetVehicle;
 using Vehicle.Api.Validation;
-using Vehicle.Application.Common;
+using Vehicle.Core.Common;
 
 namespace Vehicle.Api.Endpoints;
 
 public class GetVehicleEndpoint : EndpointWithoutRequest<Results<Ok<VehicleResult>, NotFound<ProblemDetails>>>
 {
-    private readonly IMediator _mediator;
+    private readonly IGetVehicleByRegistrationNumberQueryHandler _handler;
     private readonly ILogger<GetVehicleEndpoint> _logger;
 
     public override void Configure()
@@ -25,9 +24,9 @@ public class GetVehicleEndpoint : EndpointWithoutRequest<Results<Ok<VehicleResul
             .WithDescription("Retrieves vehicle information by its registration number"));
     }
 
-    public GetVehicleEndpoint(IMediator mediator, ILogger<GetVehicleEndpoint> logger)
+    public GetVehicleEndpoint(IGetVehicleByRegistrationNumberQueryHandler handler, ILogger<GetVehicleEndpoint> logger)
     {
-        _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
+        _handler = handler ?? throw new ArgumentNullException(nameof(handler));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
@@ -47,7 +46,7 @@ public class GetVehicleEndpoint : EndpointWithoutRequest<Results<Ok<VehicleResul
 
         _logger.LogInformation("Retrieving vehicle with registration number {RegistrationNumber}", registrationNumber);
 
-        var vehicle = await _mediator.Send(new GetVehicleByRegistrationNumberQuery(registrationNumber!), ct);
+        var vehicle = await _handler.Handle(new GetVehicleByRegistrationNumberQuery(registrationNumber!), ct);
 
         if (vehicle == null)
         {

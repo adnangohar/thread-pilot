@@ -1,9 +1,5 @@
 using FluentAssertions;
 using Insurance.Api.Endpoints;
-using Insurance.Application.Common;
-using Insurance.Application.Queries.GetPersonInsurances;
-using Insurance.Contracts;
-using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Moq;
@@ -11,21 +7,24 @@ using System.Reflection;
 using ProblemDetails = FastEndpoints.ProblemDetails;
 using FluentValidation;
 using FluentValidation.Results;
-using ContractsInsuranceType = Insurance.Contracts.InsuranceType;
+using DomainInsuranceType = Insurance.Core.Enums.InsuranceType;
+using Insurance.Api.Contracts;
+using Insurance.Core.Queries.GetPersonInsurances;
+using Insurance.Core.Common;
 
 namespace Insurance.UnitTests.Endpoints;
 
 public class GetPersonInsurancesEndpointTests
 {
-    private readonly Mock<IMediator> _mediatorMock;
+    private readonly Mock<IGetPersonInsurancesQueryHandler> _handlerMock;
     private readonly Mock<IValidator<GetPersonInsurancesRequest>> _validatorMock;
     private readonly GetPersonInsurancesEndpoint _endpoint;
 
     public GetPersonInsurancesEndpointTests()
     {
-        _mediatorMock = new Mock<IMediator>();
+        _handlerMock = new Mock<IGetPersonInsurancesQueryHandler>();
         _validatorMock = new Mock<IValidator<GetPersonInsurancesRequest>>();
-        _endpoint = new GetPersonInsurancesEndpoint(_mediatorMock.Object, _validatorMock.Object);
+        _endpoint = new GetPersonInsurancesEndpoint(_handlerMock.Object, _validatorMock.Object);
         
         // Setup HttpContext for the endpoint using reflection
         var httpContext = new DefaultHttpContext();
@@ -50,8 +49,8 @@ public class GetPersonInsurancesEndpointTests
             PersonalIdentificationNumber = pin,
             Insurances = new List<InsuranceResponse>
             {
-                new InsuranceResponse { Type = ContractsInsuranceType.PersonalHealth, MonthlyCost = 100.00m },
-                new InsuranceResponse { Type = ContractsInsuranceType.Pet, MonthlyCost = 50.00m }
+                new InsuranceResponse { Type = DomainInsuranceType.PersonalHealth, MonthlyCost = 100.00m },
+                new InsuranceResponse { Type = DomainInsuranceType.Pet, MonthlyCost = 50.00m }
             },
             TotalMonthlyCost = 150.00m
         };
@@ -59,7 +58,7 @@ public class GetPersonInsurancesEndpointTests
         _validatorMock.Setup(v => v.ValidateAsync(request, It.IsAny<CancellationToken>()))
                      .ReturnsAsync(new ValidationResult());
 
-        _mediatorMock.Setup(m => m.Send(It.Is<GetPersonInsurancesQuery>(q => q.PersonalIdentificationNumber == expectedQuery.PersonalIdentificationNumber), It.IsAny<CancellationToken>()))
+        _handlerMock.Setup(h => h.Handle(It.Is<GetPersonInsurancesQuery>(q => q.PersonalIdentificationNumber == expectedQuery.PersonalIdentificationNumber), It.IsAny<CancellationToken>()))
                     .ReturnsAsync(personInsurancesResult);
 
         // Act
@@ -73,7 +72,7 @@ public class GetPersonInsurancesEndpointTests
         okResult!.Value.Should().BeEquivalentTo(personInsurancesResult);
         
         _validatorMock.Verify(v => v.ValidateAsync(request, It.IsAny<CancellationToken>()), Times.Once);
-        _mediatorMock.Verify(m => m.Send(It.Is<GetPersonInsurancesQuery>(q => q.PersonalIdentificationNumber == pin), It.IsAny<CancellationToken>()), Times.Once);
+        _handlerMock.Verify(h => h.Handle(It.Is<GetPersonInsurancesQuery>(q => q.PersonalIdentificationNumber == pin), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -94,7 +93,7 @@ public class GetPersonInsurancesEndpointTests
         _validatorMock.Setup(v => v.ValidateAsync(request, It.IsAny<CancellationToken>()))
                      .ReturnsAsync(new ValidationResult());
 
-        _mediatorMock.Setup(m => m.Send(It.Is<GetPersonInsurancesQuery>(q => q.PersonalIdentificationNumber == expectedQuery.PersonalIdentificationNumber), It.IsAny<CancellationToken>()))
+        _handlerMock.Setup(h => h.Handle(It.Is<GetPersonInsurancesQuery>(q => q.PersonalIdentificationNumber == expectedQuery.PersonalIdentificationNumber), It.IsAny<CancellationToken>()))
                     .ReturnsAsync(emptyPersonInsurancesResult);
 
         // Act
@@ -111,7 +110,7 @@ public class GetPersonInsurancesEndpointTests
         okResult!.Value!.TotalMonthlyCost.Should().Be(0);
         
         _validatorMock.Verify(v => v.ValidateAsync(request, It.IsAny<CancellationToken>()), Times.Once);
-        _mediatorMock.Verify(m => m.Send(It.Is<GetPersonInsurancesQuery>(q => q.PersonalIdentificationNumber == pin), It.IsAny<CancellationToken>()), Times.Once);
+        _handlerMock.Verify(h => h.Handle(It.Is<GetPersonInsurancesQuery>(q => q.PersonalIdentificationNumber == pin), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -125,7 +124,7 @@ public class GetPersonInsurancesEndpointTests
         _validatorMock.Setup(v => v.ValidateAsync(request, It.IsAny<CancellationToken>()))
                      .ReturnsAsync(new ValidationResult());
 
-        _mediatorMock.Setup(m => m.Send(It.IsAny<GetPersonInsurancesQuery>(), It.IsAny<CancellationToken>()))
+        _handlerMock.Setup(h => h.Handle(It.IsAny<GetPersonInsurancesQuery>(), It.IsAny<CancellationToken>()))
                     .ThrowsAsync(expectedException);
 
         // Act & Assert
@@ -136,7 +135,7 @@ public class GetPersonInsurancesEndpointTests
         exception.Message.Should().Be("Database connection failed");
         
         _validatorMock.Verify(v => v.ValidateAsync(request, It.IsAny<CancellationToken>()), Times.Once);
-        _mediatorMock.Verify(m => m.Send(It.IsAny<GetPersonInsurancesQuery>(), It.IsAny<CancellationToken>()), Times.Once);
+        _handlerMock.Verify(h => h.Handle(It.IsAny<GetPersonInsurancesQuery>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -151,7 +150,7 @@ public class GetPersonInsurancesEndpointTests
         _validatorMock.Setup(v => v.ValidateAsync(request, It.IsAny<CancellationToken>()))
                      .ReturnsAsync(new ValidationResult());
 
-        _mediatorMock.Setup(m => m.Send(It.IsAny<GetPersonInsurancesQuery>(), It.IsAny<CancellationToken>()))
+        _handlerMock.Setup(h => h.Handle(It.IsAny<GetPersonInsurancesQuery>(), It.IsAny<CancellationToken>()))
                     .ThrowsAsync(new OperationCanceledException());
 
         // Act & Assert
@@ -159,7 +158,7 @@ public class GetPersonInsurancesEndpointTests
             _endpoint.ExecuteAsync(request, cancellationTokenSource.Token));
         
         _validatorMock.Verify(v => v.ValidateAsync(request, It.IsAny<CancellationToken>()), Times.Once);
-        _mediatorMock.Verify(m => m.Send(It.IsAny<GetPersonInsurancesQuery>(), It.IsAny<CancellationToken>()), Times.Once);
+        _handlerMock.Verify(h => h.Handle(It.IsAny<GetPersonInsurancesQuery>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -190,6 +189,6 @@ public class GetPersonInsurancesEndpointTests
         badRequestResult.Value.Instance.Should().Be("/insurances");
         
         _validatorMock.Verify(v => v.ValidateAsync(request, It.IsAny<CancellationToken>()), Times.Once);
-        _mediatorMock.Verify(m => m.Send(It.IsAny<GetPersonInsurancesQuery>(), It.IsAny<CancellationToken>()), Times.Never);
+        _handlerMock.Verify(h => h.Handle(It.IsAny<GetPersonInsurancesQuery>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 }
